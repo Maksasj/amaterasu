@@ -1,4 +1,4 @@
-# Bebone
+# Amaterasu
 
 ```
 cmake -B build -G Ninja
