@@ -5,12 +5,13 @@
 
 #include <functional>
 
+#define OMNI_TYPES_MATRIX_COLLUM_MAJOR_ORDER
 #include <omni_types.tpp>
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
-
 using namespace omni::types;
+
+const i32 WINDOW_WIDTH = 800;
+const i32 WINDOW_HEIGHT = 600;
 
 using Color = Vec4f;
 
@@ -18,11 +19,11 @@ struct RayCollisionData {
     bool collision;
 
     Vec3f point = Vec3f::splat(0.0f);
-    Vec3f direction_after = Vec3f::splat(0.0f);
+    Vec3f reflection = Vec3f::splat(0.0f);
     Color color = Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-    f32 depth0 = std::numeric_limits<f32>::max();
-    f32 depth1 = std::numeric_limits<f32>::max();
+    bool reflect = false;
+    f32 depth = std::numeric_limits<f32>::max();
 };
 
 struct Ray {
@@ -64,24 +65,32 @@ struct SphereObject : public Object {
 
         const f32 discriminant = b*b - 4*a*c;
 
-        if(discriminant > 0) {
-            const f32 d0 = (-b + sqrt(discriminant)) / (2.0f * a);
-            const f32 d1 = (-b - sqrt(discriminant)) / (2.0f * a);
+        if(discriminant >= 0) {
+            f32 d0 = (-b + sqrt(discriminant)) / (2.0f * a);
+            f32 d1 = (-b - sqrt(discriminant)) / (2.0f * a);
 
-            const f32 d = d1;
+            if(d0 > d1) std::swap(d0, d1);
 
-            const Vec3f collisionPoint = ray.origin + ray.direction*d;
+            if(d0 < 0.0f) {
+                d0 = d1;
+                if(d0 < 0) return RayCollisionData{false};
+            }
+
+            const f32 d = d0;
+
+            const Vec3f collisionPoint = ray.origin + ray.direction*(d * 0.99f);
             const Vec3f normal = (collisionPoint - pos).normalize();
 
-            const Vec3f normalColor = (normal + 1.0f) / 2.0f;
+            const Vec3f refl = ray.direction - normal * 2.0f * (ray.direction.dot(normal));
+            const Vec3f normalColor = ((normal + 1.0f) / 2.0f);
 
             return RayCollisionData{
                 true,
                 collisionPoint,
-                normal,
-                Color{normalColor.x, normalColor.y, normalColor.z, 1.0f},
-                d0,
-                d1
+                refl,
+                color,// Color{normalColor.x, normalColor.y, normalColor.z, 1.0f},
+                true,
+                d
             };
         }
 
@@ -90,27 +99,38 @@ struct SphereObject : public Object {
 };
 
 struct PlaneObject : public Object {
-    PlaneObject(const Vec3f _pos) : Object(_pos) {
+    Vec3f normal;
 
+    PlaneObject(const Vec3f _pos) : Object(_pos) {
+        normal = Vec3f(0.0f, 1.0f, 0.0f);
     } 
 
     RayCollisionData hit(const Ray& ray) override {
-        /*
-        if(ray.y > pos.y) {
-            return RayCollisionData{
-                true,
-                ray,
-                ray,
-                0xFF00FF00
-            };
-        }
-        */
+        f32 denom = pos.dot(normal);
 
-        return RayCollisionData{false};
+        if (abs(denom) <= 1e-4f)
+            return RayCollisionData{false};
+
+        f32 t = -(ray.origin.dot(normal) + denom) / ray.direction.dot(normal);
+
+        if (t <= 1e-4)
+            return RayCollisionData{false};
+
+        const Vec3f collisionPoint = ray.origin + ray.direction * t;
+        const Vec3f refl = ray.direction - normal * 2.0f * (ray.direction.dot(normal));
+
+        return RayCollisionData{
+            true,
+            collisionPoint,
+            refl,
+            Color{0.2f, 0.2f, 0.2f, 1.0f},
+            false,
+            t
+        };
     }
 };
 
-int main(int argc, char *argv[]) {
+i32 main(i32 argc, char *argv[]) {
     std::ignore = argc;
     std::ignore = argv;
 
@@ -120,17 +140,22 @@ int main(int argc, char *argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(win, NULL, SDL_RENDERER_ACCELERATED);
     SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    const f64 centerXPos = WINDOW_WIDTH / 2.0f;
+    const f64 centerYPos = WINDOW_HEIGHT / 2.0f;
+    SDL_WarpMouseInWindow(win, centerXPos, centerYPos);
+
     std::vector<Object*> objects;
 
-    objects.push_back(new SphereObject(Vec3f(0.0f, 0.0f, 2.5f), Color{1.0f, 0.0f, 0.0f, 1.0f}, 0.75f));
-    objects.push_back(new SphereObject(Vec3f(1.0f, 0.0f, 1.1f), Color{1.0f, 0.0f, 1.0f, 1.0f}, 0.32f));
-    objects.push_back(new SphereObject(Vec3f(-1.0f, 0.0f, 1.1f), Color{1.0f, 1.0f, 0.0f, 1.0f}, 0.32f));
+    objects.push_back(new SphereObject(Vec3f(0.0f, 0.0f, -2.5f), Color{1.0f, 0.0f, 0.0f, 1.0f}, 0.75f));
+    objects.push_back(new SphereObject(Vec3f(1.0f, 0.0f, -1.1f), Color{0.0f, 1.0f, 0.0f, 1.0f}, 0.32f));
+    objects.push_back(new SphereObject(Vec3f(-1.0f, 0.0f, -1.1f), Color{0.0f, 0.0f, 1.0f, 1.0f}, 0.32f));
+    objects.push_back(new PlaneObject(Vec3f(0.0f, -0.5f, 0.0f)));
 
     Vec3f origin = Vec3f::splat(0.0f);
-    Vec3f lookDirection = Vec3f(0.0f, 0.0f, 1.0f);
+    Vec3f direction = Vec3f(0.0f, 0.0f, -1.0f);
     Vec3f rotation = Vec3f::splat(0.0f);
 
-    std::unordered_map<int, bool> KEYS;
+    std::unordered_map<i32, bool> KEYS;
     bool mouseLocked = true;
 
     bool loopShouldStop = false;
@@ -154,19 +179,21 @@ int main(int argc, char *argv[]) {
         }
 
         if (KEYS[SDLK_w]) {
-            origin += Vec3f(1.0f, 0.0f, 1.0f) * lookDirection.normalize() * 0.1f;
+            // origin += Vec3f(1.0f, 0.0f, 1.0f) * direction.normalize() * 0.1f;
+            origin -= Vec3f(direction.z, 0.0f, direction.x).normalize() * 0.02f;
         }
 
         if (KEYS[SDLK_s]) {
-            origin -= Vec3f(1.0f, 0.0f, 1.0f) * lookDirection.normalize() * 0.1f;
+            origin += Vec3f(direction.z, 0.0f, direction.x).normalize() * 0.02f;
+            // origin -= Vec3f(1.0f, 0.0f, 1.0f) * direction.normalize() * 0.1f;
         }
 
         if (KEYS[SDLK_a]) {
-            origin -= Vec3f(lookDirection.z, 0.0f, -lookDirection.x).normalize() * 0.02f;
+            origin -= Vec3f(1.0f, 0.0f, -1.0f) * direction.normalize() * 0.02f;
         }
 
         if (KEYS[SDLK_d]) {
-            origin += Vec3f(lookDirection.z, 0.0f, -lookDirection.x).normalize() * 0.02f;
+            origin += Vec3f(1.0f, 0.0f, -1.0f) * direction.normalize() * 0.02f;
         }
 
         if (KEYS[SDLK_SPACE]) {
@@ -183,9 +210,6 @@ int main(int argc, char *argv[]) {
         mouseLocked = (isDebugButtonPressed && !buttonPressed) ? !mouseLocked : mouseLocked;  
         buttonPressed = !isDebugButtonPressed ? false : true;
 
-        const f64 centerXPos = WINDOW_WIDTH / 2.0f;
-        const f64 centerYPos = WINDOW_HEIGHT / 2.0f;
-
         if(oldMouseLockState != mouseLocked) {
             SDL_WarpMouseInWindow(win, centerXPos, centerYPos);
         }
@@ -197,23 +221,24 @@ int main(int argc, char *argv[]) {
             const f32 deltaX = floor(centerXPos) - xPos;
             const f32 deltaY = floor(centerYPos) - yPos;
 
-            rotation.x += deltaY * 0.005f;
+            rotation.x -= deltaY * 0.005f;
             rotation.y += deltaX * 0.005f;
 
             SDL_WarpMouseInWindow(win, centerXPos, centerYPos);
         }
 
-        // lookDirection.x = cos(rotation.y) * cos(rotation.x);
-        // lookDirection.y = -sin(rotation.x);
-        // lookDirection.z = sin(rotation.y) * cos(rotation.x);
-        // lookDirection.normalize();
+        direction.x = cos(rotation.y) * cos(rotation.x);
+        direction.y = sin(rotation.x);
+        direction.z = sin(rotation.y) * cos(rotation.x);
+
+        direction.normalize();
 
         SDL_RenderClear(renderer);
 
         const SDL_FRect window_rect_f = {0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT};
         const SDL_Rect window_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 
-        void *pixels; int pitch;
+        void *pixels; i32 pitch;
         SDL_LockTexture(texture, &window_rect, &pixels, &pitch);
 
         const f32 aspect = static_cast<f32>(WINDOW_WIDTH) / static_cast<f32>(WINDOW_HEIGHT);
@@ -222,42 +247,55 @@ int main(int argc, char *argv[]) {
         sprintf(title, "Amaterasu pos: %.1f %.1f %.1f", origin.x, origin.y, origin.z);
         SDL_SetWindowTitle(win, title);
 
-        for(int xW = 0; xW < WINDOW_WIDTH; ++xW) {
-            for(int yH = 0; yH < WINDOW_HEIGHT; ++yH) {
+        Mat4f rot = trait_bryan_angle_yxz(rotation);
+
+        for(i32 xW = 0; xW < WINDOW_WIDTH; ++xW) {
+            for(i32 yH = 0; yH < WINDOW_HEIGHT; ++yH) {
+
+                Vec3f dir(
+                    (xW /static_cast<f32>(WINDOW_WIDTH) - 0.5f),
+                    (yH /static_cast<f32>(WINDOW_HEIGHT) - 0.5f) / aspect,
+                    -1.0f
+                );
+
                 u32& pixel = static_cast<u32*>(pixels)[xW + yH * WINDOW_WIDTH];
                 Color pixelColor{0.0f, 0.0f, 0.0f, 1.0f};
 
-                Vec3f direction(
-                    (xW /static_cast<f32>(WINDOW_WIDTH) - 0.5f),
-                    (yH /static_cast<f32>(WINDOW_HEIGHT) - 0.5f) / aspect,
-                    1.0f
-                );  
 
-                Ray ray{origin, direction};
+                Vec4f rotated = rot * Vec4f(dir.x, dir.y, dir.z, 1.0);
+                dir = Vec3f(rotated.x, rotated.y, rotated.z);
+
+                Ray ray{origin, dir};
 
                 f32 depth = std::numeric_limits<f32>::max();
 
-                for(int i = 0; i < 2; ++i) {
-                    Ray reflectedRay = ray;
+                const u64 maxSteps = 5;
+                f32 mult = 1.0f;
 
-                    for(Object*& obj : objects) {
-                        const RayCollisionData collision = obj->hit(ray); 
+                for(u64 i = 0; i < maxSteps; ++i) {
+                    RayCollisionData collision{false};
 
-                        if(collision.collision) {
-                            const f32 currDepth = collision.depth1;
+                    for(Object* obj : objects) {
+                        const RayCollisionData tmpCollision = obj->hit(ray); 
 
-                            if(currDepth < depth) {
-                                depth = currDepth;
-
-                                pixelColor = collision.color;
-                                reflectedRay = Ray{collision.point, collision.direction_after};
+                        if(tmpCollision.collision) {
+                            if(tmpCollision.depth < depth) {
+                                depth = tmpCollision.depth;
+                                collision = tmpCollision;
                             }
                         }
                     }
-                    
-                    ray = reflectedRay; 
-                }
 
+                    if(collision.collision) {
+                        pixelColor += collision.color * mult;
+                        mult *= 0.75f;
+
+                        if(collision.reflect)
+                            ray = Ray{collision.point + (collision.reflection * 0.0001f), collision.reflection};
+                        else
+                            break;
+                    }
+                }
 
                 pixel = to_rgba_color(pixelColor);
             }
