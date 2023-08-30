@@ -1,3 +1,6 @@
 [submodule "3dparty/SDL"]
 	path = 3dparty/SDL
 	url = https://github.com/libsdl-org/SDL
+[submodule "3dparty/omni_types"]
+	path = 3dparty/omni_types
+	url = https://github.com/Maksasj/omni_types
