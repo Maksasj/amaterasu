@@ -6,6 +6,10 @@
 
 #include "common.h"
 #include "window.h"
+#include "ray.h"
+#include "ray_result.h"
+#include "scene.h"
+#include "camera.h"
 
 namespace amts {
     class RenderingTarget;
@@ -19,9 +23,10 @@ namespace amts {
 
             ~Renderer();
 
-            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height) const;
+            RayResult trace_ray(const Ray& ray, const Scene& scene) const;
+            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const std::unique_ptr<Camera>& camera) const;
 
-            void render(const std::unique_ptr<RenderingTarget>& target);
+            void render(const std::unique_ptr<RenderingTarget>& target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera);
 
             void present_target(const std::unique_ptr<RenderingTarget>& target);
 

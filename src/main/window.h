@@ -26,6 +26,14 @@ namespace amts {
                 SDL_DestroyWindow(m_sdlWindow);
             }
 
+            const u64& get_width() const {
+                return m_width;
+            }
+
+            const u64& get_height() const {
+                return m_height;
+            }
+
             SDL_Window* get_sdl_window() {
                 return m_sdlWindow;
             }

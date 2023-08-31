@@ -24,6 +24,12 @@ namespace amts {
 
             }
 
+            Color& clamp(const f32& min, const f32& max) {
+                m_values.clamp(min, max);
+
+                return *this;
+            }
+
             Color operator+(const Color& col) const {
                 return Color(this->m_values + col.m_values);
             }
@@ -47,6 +53,10 @@ namespace amts {
                 const u8 a = static_cast<u8>(m_values.w * 255.0f);
 
                 return (a << 24) | (b << 16) | (g << 8) | (r << 0);
+            }
+
+            Vec3f to_vec3f() const {
+                return Vec3f(m_values.x, m_values.y, m_values.z);
             }
     };
 }

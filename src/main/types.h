@@ -1,6 +1,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
+#define OMNI_TYPES_MATRIX_COLLUM_MAJOR_ORDER
 #include <omni_types.tpp>
 
 namespace amts {
