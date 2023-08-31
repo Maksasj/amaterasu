@@ -70,7 +70,10 @@ namespace amts {
                         m_mainCamera->update_input(event);
                     }
 
-                    m_mainCamera->update_state(m_window);
+                    if(m_mainCamera->update_state(m_window)) {
+                        m_target->reset_accumulation();
+                        m_renderer->reset_accumulation();
+                    }
                     
                     m_target->lock();
                     m_renderer->render(m_target, m_scene, m_mainCamera);

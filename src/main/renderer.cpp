@@ -1,7 +1,9 @@
 #include "renderer.h"
 #include "rendering_target.h"
 
-amts::Renderer::Renderer::Renderer(const std::unique_ptr<Window>& window) : m_sdlRenderer(nullptr) {
+amts::Renderer::Renderer::Renderer(const std::unique_ptr<Window>& window) 
+    : m_sdlRenderer(nullptr), m_frame(1) {
+
     m_sdlRenderer = SDL_CreateRenderer(window->get_sdl_window(), NULL, SDL_RENDERER_ACCELERATED);
 }
 
@@ -63,7 +65,7 @@ amts::Color amts::Renderer::per_pixel(const u64& x, const u64& y, const u64& wid
         contribution *= scene.m_objects[result.objectId]->get_contribution();
 
         ray.m_origin = result.hitPoint + result.hitNormal * 0.0001f;
-        ray.m_direction = result.hitNormal.normalize();
+        ray.m_direction = (result.hitNormal + Utils::random_in_unit_sphere()).normalize();
     }
 
     return Color(light.x, light.y, light.z);
@@ -75,15 +77,23 @@ void amts::Renderer::render(const std::unique_ptr<RenderingTarget>& target, cons
     const auto targetWidth = target->get_width();
     const auto targetHeight = target->get_height();
 
+    Color* accumulatedColor = target->get_accumulated_color();
     u32* pixels = target->get_pixel_data();
 
     for(u64 x = 0; x < targetWidth; ++x) {
         for(u64 y = 0; y < targetHeight; ++y) {
-            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, camera).clamp(0.0f, 1.0f);
-
-            pixels[x + y * targetWidth] = color.to_u32();
+            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, camera);
+            
+            accumulatedColor[x + y * targetWidth] += color;
+            pixels[x + y * targetWidth] = (accumulatedColor[x + y * targetWidth] / static_cast<f32>(m_frame)).to_u32();
         }
     }
+
+    ++m_frame;
+}
+
+void amts::Renderer::reset_accumulation() {
+    m_frame = 1;
 }
 
 void amts::Renderer::present_target(const std::unique_ptr<RenderingTarget>& target) {

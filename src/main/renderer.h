@@ -10,6 +10,7 @@
 #include "ray_result.h"
 #include "scene.h"
 #include "camera.h"
+#include "utils.h"
 
 namespace amts {
     class RenderingTarget;
@@ -17,6 +18,7 @@ namespace amts {
     class Renderer {
         private:
             SDL_Renderer* m_sdlRenderer; 
+            u64 m_frame;
 
         public:
             Renderer(const std::unique_ptr<Window>& window);
@@ -29,6 +31,8 @@ namespace amts {
             void render(const std::unique_ptr<RenderingTarget>& target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera);
 
             void present_target(const std::unique_ptr<RenderingTarget>& target);
+
+            void reset_accumulation();
 
             SDL_Renderer* get_sdl_renderer();
     };

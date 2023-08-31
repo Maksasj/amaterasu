@@ -19,8 +19,10 @@ namespace amts {
 
             bool m_locked;
 
-            void *m_pixelData;
+            void* m_pixelData;
             i32 m_pixelDataPitch;
+
+            Color* m_accumulatedColor;
 
         public:
             RenderingTarget(const std::unique_ptr<Renderer>& renderer, const u64& width, const u64& height) 
@@ -38,6 +40,8 @@ namespace amts {
                     static_cast<i32>(m_width),
                     static_cast<i32>(m_height)
                 );
+
+                m_accumulatedColor = static_cast<Color*>(malloc(m_width * m_height * sizeof(Color)));
             }
 
             void lock() {
@@ -48,6 +52,18 @@ namespace amts {
             void unlock() {
                 SDL_UnlockTexture(m_sdlTexture);
                 m_locked = false;
+            }
+
+            Color* get_accumulated_color() {
+                return m_accumulatedColor;
+            }
+
+            void reset_accumulation() {
+                for(u64 x = 0; x < m_width; ++x) {
+                    for(u64 y = 0; y < m_height; ++y) {
+                        m_accumulatedColor[x + y * m_width] = Color(0.0f, 0.0f, 0.0f);
+                    }
+                }
             }
 
             const bool& is_locked() const {
@@ -80,6 +96,7 @@ namespace amts {
 
             ~RenderingTarget() {
                 SDL_DestroyTexture(m_sdlTexture);
+                free(m_accumulatedColor);
             }
     };
 }

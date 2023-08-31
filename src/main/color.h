@@ -46,6 +46,42 @@ namespace amts {
                 return Color(this->m_values / col.m_values);
             }
 
+            Color operator+(const f32& value) const {
+                return Color(this->m_values + value);
+            }
+
+            Color operator-(const f32& value) const {
+                return Color(this->m_values - value);
+            }
+
+            Color operator*(const f32& value) const {
+                return Color(this->m_values * value);
+            }
+
+            Color operator/(const f32& value) const {
+                return Color(this->m_values / value);
+            }
+
+            inline Color& operator+=(const Color& other) {
+                m_values += other.m_values;
+                return *this;
+            }
+
+            inline Color& operator-=(const Color& other) {
+                m_values -= other.m_values;
+                return *this;
+            }
+
+            inline Color& operator*=(const Color& other) {
+                m_values *= other.m_values;
+                return *this;
+            }
+
+            inline Color& operator/=(const Color& other) {
+                m_values /= other.m_values;
+                return *this;
+            }
+
             u32 to_u32() const {
                 const u8 r = static_cast<u8>(m_values.x * 255.0f);
                 const u8 g = static_cast<u8>(m_values.y * 255.0f);

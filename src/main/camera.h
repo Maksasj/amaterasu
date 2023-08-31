@@ -48,23 +48,27 @@ namespace amts {
                 }
             }
 
-            void update_state(std::unique_ptr<Window>& window) {
+            bool update_state(std::unique_ptr<Window>& window) {
+                bool moved = false;
+
                 if (KEYS[SDLK_w]) {
-                    // m_position += Vec3f(1.0f, 0.0f, 1.0f) * m_direction.normalize() * 0.1f;
                     m_position -= Vec3f(m_direction.z, 0.0f, m_direction.x).normalize() * 0.02f;
+                    moved = true;
                 }
 
                 if (KEYS[SDLK_s]) {
                     m_position += Vec3f(m_direction.z, 0.0f, m_direction.x).normalize() * 0.02f;
-                    // m_position -= Vec3f(1.0f, 0.0f, 1.0f) * m_direction.normalize() * 0.1f;
+                    moved = true;
                 }
 
                 if (KEYS[SDLK_a]) {
                     m_position -= Vec3f(1.0f, 0.0f, -1.0f) * m_direction.normalize() * 0.02f;
+                    moved = true;
                 }
 
                 if (KEYS[SDLK_d]) {
                     m_position += Vec3f(1.0f, 0.0f, -1.0f) * m_direction.normalize() * 0.02f;
+                    moved = true;
                 }
 
                 if (KEYS[SDLK_SPACE]) {
@@ -99,6 +103,7 @@ namespace amts {
                     m_rotation.y += deltaX * 0.005f;
 
                     SDL_WarpMouseInWindow(window->get_sdl_window(), centerXPos, centerYPos);
+                    moved = true;
                 }
 
                 m_direction.x = cos(m_rotation.y) * cos(m_rotation.x);
@@ -107,6 +112,8 @@ namespace amts {
                 m_direction.normalize();
 
                 m_rotationMatrix = trait_bryan_angle_yxz(m_rotation);
+
+                return moved;
             }
     };
 }
