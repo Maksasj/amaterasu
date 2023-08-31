@@ -261,7 +261,6 @@ i32 main(i32 argc, char *argv[]) {
                 u32& pixel = static_cast<u32*>(pixels)[xW + yH * WINDOW_WIDTH];
                 Color pixelColor{0.0f, 0.0f, 0.0f, 1.0f};
 
-
                 Vec4f rotated = rot * Vec4f(dir.x, dir.y, dir.z, 1.0);
                 dir = Vec3f(rotated.x, rotated.y, rotated.z);
 
