@@ -37,6 +37,9 @@ namespace amts {
             );
 
             void present_target(const std::unique_ptr<RenderingTarget>& target);
+            void present();
+
+            void clear(const Color& color);
 
             void reset_accumulation();
 

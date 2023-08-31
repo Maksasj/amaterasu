@@ -24,6 +24,11 @@ namespace amts {
 
             }
 
+            const f32& r() const { return m_values.x; }
+            const f32& g() const { return m_values.y; }
+            const f32& b() const { return m_values.z; }
+            const f32& a() const { return m_values.w; }
+
             Color& clamp(const f32& min, const f32& max) {
                 m_values.clamp(min, max);
 

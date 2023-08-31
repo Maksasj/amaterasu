@@ -1,12 +1,24 @@
 cmake_minimum_required(VERSION 3.27)
 project(AmaterasuMain)
 
+
 include_directories("./")
 include_directories("../")
 include_directories("../../3dparty/SDL/include")
 include_directories("../../3dparty/omni_types/src")
+include_directories("../../3dparty/imgui")
+include_directories("../../3dparty/imgui/backends")
 
 file(GLOB_RECURSE MAIN-SRC *.cpp)
+
+# Imgui source files
+file(GLOB IMGUI-SRC
+    "../../3dparty/imgui/*.cpp"
+    "../../3dparty/imgui/backends/imgui_impl_sdl3.cpp"
+    "../../3dparty/imgui/backends/imgui_impl_sdlrenderer3.cpp"
+)
+
+list (APPEND MAIN-SRC ${IMGUI-SRC})
 
 add_executable(Amaterasu ${MAIN-SRC})
 target_link_libraries(Amaterasu SDL3::SDL3)
