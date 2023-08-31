@@ -7,6 +7,7 @@
 #include "renderer.h"
 #include "window.h"
 #include "rendering_target.h"
+#include "material_pool.h"
 
 namespace amts {
     class Amaterasu {
@@ -18,6 +19,7 @@ namespace amts {
             std::unique_ptr<RenderingTarget> m_target;
             std::unique_ptr<Scene> m_scene;
             std::unique_ptr<Camera> m_mainCamera;
+            std::unique_ptr<MaterialPool> m_materialPool;
 
         public:
             Amaterasu() 
@@ -26,7 +28,8 @@ namespace amts {
                   m_renderer(nullptr),
                   m_target(nullptr),
                   m_scene(nullptr),
-                  m_mainCamera(nullptr) {
+                  m_mainCamera(nullptr),
+                  m_materialPool(nullptr) {
 
             }
 
@@ -44,14 +47,48 @@ namespace amts {
                 m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
                 
                 m_scene = std::make_unique<Scene>();
+                m_materialPool = std::make_unique<MaterialPool>();
+
                 m_mainCamera = std::make_unique<Camera>();
             }
             
             void load() {
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(0.0f, 0.0f, -2.5f), Color{1.0f, 0.0f, 0.0f, 1.0f}, 0.75f));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(1.0f, 0.0f, -2.0f), Color{0.0f, 1.0f, 0.0f, 1.0f}, 0.32f));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(-1.0f, 0.0f, -2.5f), Color{0.0f, 0.0f, 1.0f, 1.0f}, 0.32f));
-                m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(Vec3f(0.0f, -0.5f, 0.0f)));
+                m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+                    "Red metallic",
+                    Color(1.0f, 0.0f, 0.0f),
+                    Color(0.0f, 0.0f, 0.0f),
+                    0.0f,
+                    0.1f
+                ));
+
+                m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+                    "Blue diffuse",
+                    Color(0.0f, 0.0f, 1.0f),
+                    Color(0.0f, 0.0f, 0.0f),
+                    0.0f,
+                    1.0f
+                ));
+
+                m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+                    "Sun",
+                    Color(0.99f, 0.32f, 0.0f),
+                    Color(0.99f, 0.32f, 0.0f),
+                    1.0f,
+                    0.8f
+                ));
+
+                m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+                    "Gray floor",
+                    Color(0.3f, 0.3f, 0.3f),
+                    Color(0.0f, 0.0f, 0.0f),
+                    0.0f,
+                    1.0f
+                ));
+
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(0.0f, 0.0f, -2.5f),  0.75f, 0));
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(1.0f, 0.0f, -2.0f),  0.32f, 1));
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(-1.0f, 0.0f, -2.5f), 0.32f, 2));
+                m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(Vec3f(0.0f, -0.5f, 0.0f), 3));
             }
 
             void run() {
@@ -76,7 +113,7 @@ namespace amts {
                     }
                     
                     m_target->lock();
-                    m_renderer->render(m_target, m_scene, m_mainCamera);
+                    m_renderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
                     m_target->unlock();
 
                     m_renderer->present_target(m_target);
@@ -91,6 +128,11 @@ namespace amts {
                 m_target = nullptr;
                 m_renderer = nullptr;
                 m_window = nullptr;
+
+                m_scene = nullptr;
+                m_materialPool = nullptr;
+
+                m_mainCamera = nullptr;
 
                 SDL_Quit();
             }

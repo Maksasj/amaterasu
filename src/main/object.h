@@ -9,30 +9,23 @@
 namespace amts {
     struct Object {
         Vec3f m_position;
+        u64 m_materialId;
 
-        Object(const Vec3f _pos) : m_position(_pos) {}
+        Object(const Vec3f _pos, const u64& materialId) : m_position(_pos), m_materialId(materialId) {
+
+        }
+
         virtual ~Object() {}
 
         virtual RayResult hit(const Ray& ray) = 0;
-        virtual Vec3f get_contribution() = 0;
-        virtual Vec3f get_emmision() = 0;
     };
 
     struct SphereObject : public Object {
         f32 m_radius;
-        Color m_color;
 
-        SphereObject(const Vec3f _pos, Color _color, const f32 _radius) : Object(_pos), m_radius(_radius), m_color(_color) {
+        SphereObject(const Vec3f _pos, const f32 _radius, const u64& materialId) : Object(_pos, materialId), m_radius(_radius) {
 
         } 
-        
-        Vec3f get_contribution() override {
-            return Vec3f(m_color.to_vec3f());
-        }
-
-        Vec3f get_emmision() override {
-            return Vec3f(0.99f, 0.32f, 0.0f);
-        }
 
         RayResult hit(const Ray& ray) override {
             const auto oc = ray.m_origin - m_position;
@@ -72,17 +65,9 @@ namespace amts {
     struct PlaneObject : public Object {
         Vec3f normal;
 
-        PlaneObject(const Vec3f _pos) : Object(_pos) {
+        PlaneObject(const Vec3f _pos, const u64 materialId) : Object(_pos, materialId) {
             normal = Vec3f(0.0f, -1.0f, 0.0f);
         } 
-
-        Vec3f get_contribution() override {
-            return Vec3f(0.3f, 0.3f, 0.8f);
-        }
-
-        Vec3f get_emmision() override {
-            return Vec3f(0.0f, 0.0f, 0.0f);
-        }
 
         RayResult hit(const Ray& ray) override {
             f32 denom = m_position.dot(normal);
