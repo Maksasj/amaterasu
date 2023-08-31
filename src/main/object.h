@@ -15,6 +15,7 @@ namespace amts {
 
         virtual RayResult hit(const Ray& ray) = 0;
         virtual Vec3f get_contribution() = 0;
+        virtual Vec3f get_emmision() = 0;
     };
 
     struct SphereObject : public Object {
@@ -27,6 +28,10 @@ namespace amts {
         
         Vec3f get_contribution() override {
             return Vec3f(m_color.to_vec3f());
+        }
+
+        Vec3f get_emmision() override {
+            return Vec3f(0.99f, 0.32f, 0.0f);
         }
 
         RayResult hit(const Ray& ray) override {
@@ -68,11 +73,15 @@ namespace amts {
         Vec3f normal;
 
         PlaneObject(const Vec3f _pos) : Object(_pos) {
-            normal = Vec3f(0.0f, 1.0f, 0.0f);
+            normal = Vec3f(0.0f, -1.0f, 0.0f);
         } 
 
         Vec3f get_contribution() override {
-            return Vec3f(0.3f, 0.3f, 0.3f);
+            return Vec3f(0.3f, 0.3f, 0.8f);
+        }
+
+        Vec3f get_emmision() override {
+            return Vec3f(0.0f, 0.0f, 0.0f);
         }
 
         RayResult hit(const Ray& ray) override {

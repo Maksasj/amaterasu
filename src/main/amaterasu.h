@@ -49,8 +49,8 @@ namespace amts {
             
             void load() {
                 m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(0.0f, 0.0f, -2.5f), Color{1.0f, 0.0f, 0.0f, 1.0f}, 0.75f));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(1.0f, 0.0f, -1.1f), Color{0.0f, 1.0f, 0.0f, 1.0f}, 0.32f));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(-1.0f, 0.0f, -1.1f), Color{0.0f, 0.0f, 1.0f, 1.0f}, 0.32f));
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(1.0f, 0.0f, -2.0f), Color{0.0f, 1.0f, 0.0f, 1.0f}, 0.32f));
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(-1.0f, 0.0f, -2.5f), Color{0.0f, 0.0f, 1.0f, 1.0f}, 0.32f));
                 m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(Vec3f(0.0f, -0.5f, 0.0f)));
             }
 

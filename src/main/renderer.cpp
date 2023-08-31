@@ -57,12 +57,13 @@ amts::Color amts::Renderer::per_pixel(const u64& x, const u64& y, const u64& wid
         const auto result = trace_ray(ray, scene);
 
         if(result.hitDistance < 0.0f) {
-            const Vec3f skyColor = Vec3f(0.6f, 0.6f, 0.9f);
+            const Vec3f skyColor = Vec3f(0.0f, 0.0f, 0.0f);
             light += skyColor * contribution;
             break;
         }
 
         contribution *= scene.m_objects[result.objectId]->get_contribution();
+        light += scene.m_objects[result.objectId]->get_emmision();
 
         ray.m_origin = result.hitPoint + result.hitNormal * 0.0001f;
         ray.m_direction = (result.hitNormal + Utils::random_in_unit_sphere()).normalize();
@@ -82,7 +83,7 @@ void amts::Renderer::render(const std::unique_ptr<RenderingTarget>& target, cons
 
     for(u64 x = 0; x < targetWidth; ++x) {
         for(u64 y = 0; y < targetHeight; ++y) {
-            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, camera);
+            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, camera).clamp(0.0f, 1.0f);
             
             accumulatedColor[x + y * targetWidth] += color;
             pixels[x + y * targetWidth] = (accumulatedColor[x + y * targetWidth] / static_cast<f32>(m_frame)).to_u32();
