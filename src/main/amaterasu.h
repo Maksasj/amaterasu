@@ -5,6 +5,8 @@
 
 #include "common.h"
 #include "renderer.h"
+#include "window.h"
+#include "rendering_target.h"
 
 namespace amts {
     class Amaterasu {
@@ -17,7 +19,10 @@ namespace amts {
 
         public:
             Amaterasu() 
-                : m_close(false) {
+                : m_close(false),
+                  m_window(nullptr),
+                  m_renderer(nullptr),
+                  m_target(nullptr) {
 
             }
 
@@ -30,13 +35,9 @@ namespace amts {
             }
 
             void init() {
-                SDL_Window* win = SDL_CreateWindow("Hello World", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-
-            
                 m_window = std::make_unique<Window>("Amaterasu", 800, 600);
-
                 m_renderer = std::make_unique<Renderer>(m_window);
-                m_target = std::make_unique<RendereringTarget>(m_renderer);
+                m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
             }
             
             void load() {
@@ -63,23 +64,11 @@ namespace amts {
                         }
                     }
                     
-                    const SDL_FRect window_rect_f = {0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT};
-                    const SDL_Rect window_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-
-                    m_target.lock();
+                    m_target->lock();
                     m_renderer->render(m_target);
-                    m_target.unlock();
+                    m_target->unlock();
 
-                    for(i32 xW = 0; xW < WINDOW_WIDTH; ++xW) {
-                        for(i32 yH = 0; yH < WINDOW_HEIGHT; ++yH) {
-                            
-                        }
-                    }
-
-                    SDL_UnlockTexture(texture);
-                    
-                    SDL_RenderTexture(renderer, texture, &window_rect_f, &window_rect_f);
-                    SDL_RenderPresent(renderer);
+                    m_renderer->present_target(m_target);
                 }
             }
 

@@ -1,13 +1,18 @@
 #ifndef _RENDERERING_TARGET_H_
 #define _RENDERERING_TARGET_H_
 
+#include <memory>
+
 #include "common.h"
+#include "renderer.h"
 
 namespace amts {
-    class RendereringTarget {
+    class RenderingTarget {
         private:
             SDL_Texture* m_sdlTexture;
+
             const SDL_Rect m_sdlTextureRect;
+            const SDL_FRect m_sdlTextureRectF;
 
             const u64 m_width;
             const u64 m_height;
@@ -18,11 +23,16 @@ namespace amts {
             i32 m_pixelDataPitch;
 
         public:
-            RendereringTarget(SDL_Renderer* sdlRenderer, const u64& width, const u64& height) 
-                : m_sdlTexture(nullptr), m_sdlTextureRect{0, 0, width, height}, m_width(width), m_height(height), m_locked(false) {
+            RenderingTarget(const std::unique_ptr<Renderer>& renderer, const u64& width, const u64& height) 
+                : m_sdlTexture(nullptr), 
+                  m_sdlTextureRect{0, 0, static_cast<i32>(width), static_cast<i32>(height)}, 
+                  m_sdlTextureRectF{0.0f, 0.0f, static_cast<f32>(width), static_cast<f32>(height)}, 
+                  m_width(width), 
+                  m_height(height), 
+                  m_locked(false) {
             
                 m_sdlTexture = SDL_CreateTexture(
-                    sdlRenderer, 
+                    renderer->get_sdl_renderer(), 
                     SDL_PIXELFORMAT_ABGR8888, 
                     SDL_TEXTUREACCESS_STREAMING, 
                     static_cast<i32>(m_width),
@@ -40,7 +50,35 @@ namespace amts {
                 m_locked = false;
             }
 
-            ~RendereringTarget() {
+            const bool& is_locked() const {
+                return m_locked;
+            }
+
+            u32* get_pixel_data() {
+                return static_cast<u32*>(m_pixelData);
+            } 
+
+            const u64& get_width() const {
+                return m_width;
+            }
+
+            const u64& get_height() const {
+                return m_height;
+            }
+
+            SDL_Texture* get_sdl_texture() {
+                return m_sdlTexture;
+            }
+
+            const SDL_Rect& get_texture_rect() const {
+                return m_sdlTextureRect;
+            }
+
+            const SDL_FRect& get_texture_rect_f() const {
+                return m_sdlTextureRectF;
+            }
+
+            ~RenderingTarget() {
                 SDL_DestroyTexture(m_sdlTexture);
             }
     };

@@ -3,5 +3,6 @@
 
 #include "gfx_backend.h"
 #include "types.h"
+#include "color.h"
 
 #endif
