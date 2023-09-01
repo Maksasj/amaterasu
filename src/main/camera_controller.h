@@ -41,38 +41,43 @@ namespace amts {
             void move_camera(std::unique_ptr<Camera>& cameraPtr, std::unique_ptr<Window>& window) {
                 auto& camera = *cameraPtr;
 
+                Vec3f moveVector = Vec3f::splat(0.0f);
+
                 if (m_keys[SDLK_w])
-                    camera.m_position -= Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
+                    moveVector -= Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
 
                 if (m_keys[SDLK_s])
-                    camera.m_position += Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
+                    moveVector += Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
 
                 if (m_keys[SDLK_a])
-                    camera.m_position -= Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
+                    moveVector -= Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
 
                 if (m_keys[SDLK_d])
-                    camera.m_position += Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
+                    moveVector += Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
 
                 if (m_keys[SDLK_SPACE])
-                    camera.m_position.y += 0.1f;
+                    moveVector += 0.1f;
 
                 if (m_keys[SDLK_LSHIFT])
-                    camera.m_position.y -= 0.1f;
+                    moveVector -= 0.1f;
 
-                bool oldMouseLockState = m_moved;
+                camera.m_position += moveVector;
+                m_moved = (moveVector != Vec3f::splat(0.0f));
+
+                bool oldMouseLockState = m_mouseLocked;
                 static bool buttonPressed = false;
                 const bool isDebugButtonPressed = m_keys[SDLK_t];
-                m_moved = (isDebugButtonPressed && !buttonPressed) ? !m_moved : m_moved;  
+                m_mouseLocked = (isDebugButtonPressed && !buttonPressed) ? !m_mouseLocked : m_mouseLocked;  
                 buttonPressed = !isDebugButtonPressed ? false : true;
                 
                 const f64 centerXPos = window->get_width() / 2.0f;
                 const f64 centerYPos = window->get_height() / 2.0f;
 
-                if(oldMouseLockState != m_moved) {
+                if(oldMouseLockState != m_mouseLocked) {
                     SDL_WarpMouseInWindow(window->get_sdl_window(), centerXPos, centerYPos);
                 }
 
-                if(m_moved == true) {
+                if(m_mouseLocked == true) {
                     f32 xPos, yPos;
                     SDL_GetMouseState(&xPos, &yPos);
                     

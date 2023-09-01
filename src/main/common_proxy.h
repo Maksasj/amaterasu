@@ -3,10 +3,10 @@
 
 #include "common.h"
 
-#include "ray_renderer.h"
-#include "scene.h"
+#include "renderer/ray_renderer.h"
+#include "materials/material_pool.h"
+#include "scene/scene.h"
 #include "camera.h"
-#include "material_pool.h"
 
 namespace amts {
     class CommonProxy {

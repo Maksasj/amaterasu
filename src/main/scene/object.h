@@ -3,8 +3,8 @@
 
 #include "common.h"
 
-#include "ray.h"
-#include "ray_result.h"
+#include "renderer/ray.h"
+#include "renderer/ray_result.h"
 
 namespace amts {
     struct Object {

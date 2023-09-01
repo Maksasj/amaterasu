@@ -8,10 +8,10 @@
 #include "window.h"
 #include "ray.h"
 #include "ray_result.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "camera.h"
 #include "utils.h"
-#include "material_pool.h"
+#include "materials/material_pool.h"
 
 namespace amts {
     class RenderingTarget;
