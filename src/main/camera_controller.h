@@ -56,10 +56,10 @@ namespace amts {
                     moveVector += Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
 
                 if (m_keys[SDLK_SPACE])
-                    moveVector += 0.1f;
+                    moveVector.y += 0.1f;
 
                 if (m_keys[SDLK_LSHIFT])
-                    moveVector -= 0.1f;
+                    moveVector.y -= 0.1f;
 
                 camera.m_position += moveVector;
                 m_moved = (moveVector != Vec3f::splat(0.0f));

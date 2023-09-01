@@ -90,8 +90,11 @@ namespace amts {
 
             void run() override {
                 while (!m_close) {
-                    SDL_Event event;
 
+                    // Todo this should be moved to some sort of event handler class
+                    // Including camera controller, maybe lets create a new base class, as EventReceiver
+                    // And EventHandler will have a list of all event receivers
+                    SDL_Event event;
                     while (SDL_PollEvent(&event)) {
                         ImGui_ImplSDL3_ProcessEvent(&event);
 
