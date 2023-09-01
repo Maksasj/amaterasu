@@ -52,9 +52,6 @@ namespace amts {
                 const Vec3f collisionPoint = ray.m_origin + ray.m_direction*(d * 0.99f);
                 const Vec3f normal = (collisionPoint - m_position).normalize();
 
-                const Vec3f refl = ray.m_direction - normal * 2.0f * (ray.m_direction.dot(normal));
-                const Vec3f normalColor = ((normal + 1.0f) / 2.0f);
-
                 return RayResult{d, collisionPoint, normal, 0};
             }
 

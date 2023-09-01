@@ -3,6 +3,7 @@
 
 #include "renderer.h"
 #include "rendering_target.h"
+#include "camera_controller.h"
 
 #include "common_proxy.h"
 
@@ -14,6 +15,7 @@ namespace amts {
             std::unique_ptr<Window> m_window;
             std::unique_ptr<Renderer> m_renderer;
             std::unique_ptr<RenderingTarget> m_target;
+            std::unique_ptr<CameraController> m_cameraController;
 
         public:
             UIProxy() 
@@ -21,7 +23,8 @@ namespace amts {
                   m_close(false),
                   m_window(nullptr),
                   m_renderer(nullptr),
-                  m_target(nullptr) { 
+                  m_target(nullptr),
+                  m_cameraController(nullptr) { 
 
             }
 
@@ -42,6 +45,7 @@ namespace amts {
                 m_window = std::make_unique<Window>("Amaterasu", 800, 600);
                 m_renderer = std::make_unique<Renderer>(m_window);
                 m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
+                m_cameraController = std::make_unique<CameraController>();
 
                 IMGUI_CHECKVERSION();
                 ImGui::CreateContext();
@@ -77,14 +81,17 @@ namespace amts {
                                 break;
                         }
 
-                        m_mainCamera->update_input(event);
+                        m_cameraController->update_input(event);
                     }
 
+                    // Todo move camera should not take window, I assume all mouse input should be processed in update_input method
+                    m_cameraController->move_camera(m_mainCamera, m_window);
 
-
-                    if(m_mainCamera->update_state(m_window)) {
+                    if(m_cameraController->is_moved()) {
                         m_target->reset_accumulation();
                         m_rayRenderer->reset_accumulation();
+
+                        m_cameraController->reset_move_flag();
                     }
                     
                     m_renderer->clear(Color(0.0f, 0.0f, 0.0f));
@@ -116,6 +123,7 @@ namespace amts {
                     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
                     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
+                    // Render image
                     m_target->lock();
                         m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
                     m_target->unlock();
@@ -152,8 +160,6 @@ namespace amts {
                     }
 
                     ImGui::End();
-
-                    // ImGui::ShowDemoWindow();
 
                     ImGui::Render();
                     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData());
