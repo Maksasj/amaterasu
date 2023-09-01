@@ -4,7 +4,7 @@
 #include <cassert>
 #include <memory>
 
-#include "common.h"
+#include "common/common.h"
 #include "window.h"
 
 namespace amts {

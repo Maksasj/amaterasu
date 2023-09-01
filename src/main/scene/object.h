@@ -1,7 +1,7 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include "common.h"
+#include "common/common.h"
 
 #include "renderer/ray.h"
 #include "renderer/ray_result.h"

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "common.h"
+#include "common/common.h"
 #include "renderer.h"
 
 namespace amts {

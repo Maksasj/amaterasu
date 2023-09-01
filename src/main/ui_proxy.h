@@ -5,7 +5,7 @@
 #include "rendering_target.h"
 #include "camera_controller.h"
 
-#include "common_proxy.h"
+#include "common/common_proxy.h"
 
 namespace amts {
     class UIProxy : public CommonProxy {

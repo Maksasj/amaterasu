@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "common.h"
+#include "common/common.h"
 
 namespace amts {
     class Window {

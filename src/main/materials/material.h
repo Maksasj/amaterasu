@@ -1,7 +1,7 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
-#include "common.h"
+#include "common/common.h"
 
 namespace amts {
     struct Material {

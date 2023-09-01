@@ -2,7 +2,7 @@
 #define _CAMERA_H_
 
 #include <unordered_map>
-#include "common.h"
+#include "common/common.h"
 
 #include "window.h"
 

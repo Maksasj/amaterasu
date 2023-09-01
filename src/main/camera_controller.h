@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "common.h"
+#include "common/common.h"
 #include "camera.h"
 
 namespace amts {

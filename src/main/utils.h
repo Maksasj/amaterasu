@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-#include "common.h"
+#include "common/common.h"
 
 namespace amts {
     struct Utils {
