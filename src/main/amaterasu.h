@@ -8,12 +8,11 @@
 #include "window.h"
 #include "rendering_target.h"
 #include "material_pool.h"
-
+#include "ray_renderer.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
-
 
 namespace amts {
     class Amaterasu {
@@ -21,7 +20,10 @@ namespace amts {
             bool m_close;
 
             std::unique_ptr<Window> m_window;
+            
             std::unique_ptr<Renderer> m_renderer;
+            std::unique_ptr<RayRenderer> m_rayRenderer;
+
             std::unique_ptr<RenderingTarget> m_target;
             std::unique_ptr<Scene> m_scene;
             std::unique_ptr<Camera> m_mainCamera;
@@ -32,6 +34,7 @@ namespace amts {
                 : m_close(false),
                   m_window(nullptr),
                   m_renderer(nullptr),
+                  m_rayRenderer(nullptr),
                   m_target(nullptr),
                   m_scene(nullptr),
                   m_mainCamera(nullptr),
@@ -50,7 +53,10 @@ namespace amts {
 
             void init() {
                 m_window = std::make_unique<Window>("Amaterasu", 800, 600);
+
                 m_renderer = std::make_unique<Renderer>(m_window);
+                m_rayRenderer = std::make_unique<RayRenderer>();
+
                 m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
                 
                 m_scene = std::make_unique<Scene>();
@@ -134,7 +140,7 @@ namespace amts {
 
                     if(m_mainCamera->update_state(m_window)) {
                         m_target->reset_accumulation();
-                        m_renderer->reset_accumulation();
+                        m_rayRenderer->reset_accumulation();
                     }
                     
                     m_renderer->clear(Color(0.0f, 0.0f, 0.0f));
@@ -167,7 +173,7 @@ namespace amts {
                     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
                     m_target->lock();
-                        m_renderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
+                        m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
                     m_target->unlock();
 
                     if(ImGui::Begin("Result")) {
