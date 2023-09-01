@@ -49,7 +49,7 @@ namespace amts {
 
                 IMGUI_CHECKVERSION();
                 ImGui::CreateContext();
-                ImGuiIO& io = ImGui::GetIO(); (void)io;
+                ImGuiIO& io = ImGui::GetIO();
                 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
                 io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -64,6 +64,9 @@ namespace amts {
 
             void load() override {
                 CommonProxy::load();
+                
+                ImGuiIO& io = ImGui::GetIO();
+                std::ignore = io.Fonts->AddFontFromFileTTF("assets\\fonts\\Nunito-Medium.ttf", 21);
             }
 
             void run() override {
