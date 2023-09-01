@@ -7,7 +7,6 @@ namespace amts {
     class HeadlessProxy : public CommonProxy {
         private:
 
-
         public:
             HeadlessProxy() : CommonProxy() { 
 
@@ -15,6 +14,30 @@ namespace amts {
 
             ~HeadlessProxy() override {
                 
+            }
+
+            void preinit() override {
+                CommonProxy::preinit();
+            }
+
+            void init() override {
+                CommonProxy::init();
+            }
+
+            void load() override {
+                CommonProxy::load();
+            }
+
+            void run() override {
+                CommonProxy::run();
+            }
+
+            void unload() override {
+                CommonProxy::unload();
+            }
+
+            void cleanup() override {
+                CommonProxy::cleanup();
             }
     };
 }
