@@ -73,21 +73,6 @@ namespace amts {
                 m_eventHandler->bind_event_receiver(m_cameraController.get());
                 m_eventHandler->bind_event_receiver(m_imguiEventReceiver.get());
 
-                // All imgui thing should be under renderer or imgui renderer classes
-                IMGUI_CHECKVERSION();
-                ImGui::CreateContext();
-                ImGuiIO& io = ImGui::GetIO();
-                io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-                io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-                // Setup Dear ImGui style
-                ImGui::StyleColorsDark();
-                //ImGui::StyleColorsLight();
-
-                // Setup Platform/Renderer backends
-                ImGui_ImplSDL3_InitForSDLRenderer(m_window->get_sdl_window(), m_renderer->get_sdl_renderer());
-                ImGui_ImplSDLRenderer3_Init(m_renderer->get_sdl_renderer());
-
                 m_mainDockspace = std::make_unique<MainDockspaceUIWindow>();
                 m_sceneViewUIWindow = std::make_unique<SceneViewUIWindow>();
                 m_materialsUIWindow = std::make_unique<MaterialsUIWindow>();
@@ -114,13 +99,8 @@ namespace amts {
                         m_cameraController->reset_move_flag();
                     }
                     
-                    m_renderer->clear(Color(0.0f, 0.0f, 0.0f));
-                    
-                    ImGui_ImplSDLRenderer3_NewFrame();
-                    ImGui_ImplSDL3_NewFrame();
-                    ImGui::NewFrame();
+                    m_renderer->begin();
 
-                    // Render image
                     m_target->lock();
                     m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
                     m_target->unlock();
@@ -151,9 +131,7 @@ namespace amts {
                         }
                     });
 
-                    ImGui::Render();
-                    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData());
-
+                    m_renderer->end();
                     m_renderer->present();
                 }
             }

@@ -13,6 +13,7 @@ namespace amts {
     class Renderer {
         private:
             SDL_Renderer* m_sdlRenderer; 
+            bool m_started;
 
         public:
             Renderer(const std::unique_ptr<Window>& window);
@@ -21,6 +22,9 @@ namespace amts {
 
             void present_target(const std::unique_ptr<RenderingTarget>& target);
             void present();
+
+            void begin();
+            void end();
 
             void clear(const Color& color);
 
