@@ -6,9 +6,10 @@
 
 #include "common/common.h"
 #include "camera.h"
+#include "event_receiver.h"
 
 namespace amts {
-    class CameraController {
+    class CameraController : public EventReceiver {
         private:
             std::unordered_map<i32, bool> m_keys;
             bool m_mouseLocked;
@@ -25,7 +26,7 @@ namespace amts {
 
             }
             
-            void update_input(SDL_Event& event) {
+            void handle_event(const SDL_Event& event) override {
                 switch (event.type) {
                     case SDL_EVENT_KEY_DOWN:
                         m_keys[event.key.keysym.sym] = true;

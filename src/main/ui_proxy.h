@@ -4,6 +4,8 @@
 #include "renderer.h"
 #include "rendering_target.h"
 #include "camera_controller.h"
+#include "event_handler.h"
+#include "imgui_event_receiver.h"
 
 #include "common/common_proxy.h"
 
@@ -14,14 +16,15 @@
 namespace amts {
     class UIProxy : public CommonProxy {
         private:
-            bool m_close;
-
             std::unique_ptr<Window> m_window;
             std::unique_ptr<Renderer> m_renderer;
             std::unique_ptr<RenderingTarget> m_target;
 
+            std::unique_ptr<EventHandler> m_eventHandler;
+
             // Todo I think camera controller should be stored somewhere else
             std::unique_ptr<CameraController> m_cameraController;
+            std::unique_ptr<ImGuiEventReceiver> m_imguiEventReceiver;
 
             std::unique_ptr<MainDockspaceUIWindow> m_mainDockspace;
             std::unique_ptr<SceneViewUIWindow> m_sceneViewUIWindow;
@@ -30,12 +33,14 @@ namespace amts {
         public:
             UIProxy() 
                 : CommonProxy(), 
-                  m_close(false),
                   m_window(nullptr),
                   m_renderer(nullptr),
                   m_target(nullptr),
-                  m_cameraController(nullptr) { 
+                  m_eventHandler(nullptr) { 
                 
+                m_cameraController = nullptr;
+                m_imguiEventReceiver = nullptr;
+
                 // For convinience lets initlize ui windows with nulls there
                 m_mainDockspace = nullptr;
                 m_sceneViewUIWindow = nullptr;
@@ -59,7 +64,14 @@ namespace amts {
                 m_window = std::make_unique<Window>("Amaterasu", 800, 600);
                 m_renderer = std::make_unique<Renderer>(m_window);
                 m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
+                m_eventHandler = std::make_unique<EventHandler>();
+
                 m_cameraController = std::make_unique<CameraController>();
+                m_imguiEventReceiver = std::make_unique<ImGuiEventReceiver>();
+
+                m_eventHandler->bind_event_receiver(m_window.get());
+                m_eventHandler->bind_event_receiver(m_cameraController.get());
+                m_eventHandler->bind_event_receiver(m_imguiEventReceiver.get());
 
                 // All imgui thing should be under renderer or imgui renderer classes
                 IMGUI_CHECKVERSION();
@@ -89,25 +101,8 @@ namespace amts {
             }
 
             void run() override {
-                while (!m_close) {
-
-                    // Todo this should be moved to some sort of event handler class
-                    // Including camera controller, maybe lets create a new base class, as EventReceiver
-                    // And EventHandler will have a list of all event receivers
-                    SDL_Event event;
-                    while (SDL_PollEvent(&event)) {
-                        ImGui_ImplSDL3_ProcessEvent(&event);
-
-                        switch (event.type) {
-                            case SDL_EVENT_QUIT:
-                                m_close = true;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        m_cameraController->update_input(event);
-                    }
+                while (!m_window->is_open()) {
+                    m_eventHandler->handle_events();
 
                     // Todo move camera should not take window, I assume all mouse input should be processed in update_input method
                     m_cameraController->move_camera(m_mainCamera, m_window);
@@ -177,6 +172,8 @@ namespace amts {
                 m_window = nullptr;
                 m_renderer = nullptr;
                 m_target = nullptr;
+                m_eventHandler = nullptr;
+
                 m_cameraController = nullptr;
                 
                 m_mainDockspace = nullptr;
