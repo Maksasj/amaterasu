@@ -17,7 +17,7 @@ namespace amts {
                 
             }
 
-            void run(std::unique_ptr<RenderingTarget>& target) {
+            void run(std::unique_ptr<SDLRenderingTarget>& target) {
                 if(!CommonUIWindow::start_window()) return;
 
                 auto imageSize = ImVec2(target->get_width(), target->get_height());

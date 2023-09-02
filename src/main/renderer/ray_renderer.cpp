@@ -74,21 +74,22 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
     return Color(light.x, light.y, light.z);
 }
 
-void amts::RayRenderer::render(const std::unique_ptr<RenderingTarget>& target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera, const std::unique_ptr<MaterialCollection>& materialPool) {
+void amts::RayRenderer::render(RenderingTarget* target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera, const std::unique_ptr<MaterialCollection>& materialPool) {
     assert(target->is_locked() || std::cout << "Target should be locked before trying to render" << std::endl);
 
     const auto targetWidth = target->get_width();
     const auto targetHeight = target->get_height();
 
-    Color* accumulatedColor = target->get_accumulated_color();
-    u32* pixels = target->get_pixel_data();
+    TextureBuffer<Color>& accumulatedColor = target->get_accumulated_color();
 
     for(u64 x = 0; x < targetWidth; ++x) {
         for(u64 y = 0; y < targetHeight; ++y) {
             const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, *camera, *materialPool).clamp(0.0f, 1.0f);
-            
-            accumulatedColor[x + y * targetWidth] += color;
-            pixels[x + y * targetWidth] = (accumulatedColor[x + y * targetWidth] / static_cast<f32>(m_frame)).to_u32();
+
+            Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
+            accumulatedPixel += color;
+
+            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_frame)).to_u32();
         }
     }
 

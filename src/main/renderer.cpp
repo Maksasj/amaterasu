@@ -23,7 +23,7 @@ amts::Renderer::Renderer::~Renderer() {
     SDL_DestroyRenderer(m_sdlRenderer);
 }
 
-void amts::Renderer::present_target(const std::unique_ptr<RenderingTarget>& target) {
+void amts::Renderer::present_target(const std::unique_ptr<SDLRenderingTarget>& target) {
     assert(target->is_locked() || std::cout << "Target should be locked before trying to do present" << std::endl);
 
     SDL_RenderTexture(m_sdlRenderer, target->get_sdl_texture(), &target->get_texture_rect_f(), &target->get_texture_rect_f());

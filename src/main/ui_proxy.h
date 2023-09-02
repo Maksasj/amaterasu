@@ -2,7 +2,7 @@
 #define _UI_PROXY_H_
 
 #include "renderer.h"
-#include "rendering_target.h"
+#include "sdl_rendering_target.h"
 #include "camera_controller.h"
 #include "event_handler.h"
 #include "imgui_event_receiver.h"
@@ -20,7 +20,7 @@ namespace amts {
         private:
             std::unique_ptr<Window> m_window;
             std::unique_ptr<Renderer> m_renderer;
-            std::unique_ptr<RenderingTarget> m_target;
+            std::unique_ptr<SDLRenderingTarget> m_target;
 
             std::unique_ptr<EventHandler> m_eventHandler;
 
@@ -69,7 +69,7 @@ namespace amts {
 
                 m_window = std::make_unique<Window>("Amaterasu", 800, 600);
                 m_renderer = std::make_unique<Renderer>(m_window);
-                m_target = std::make_unique<RenderingTarget>(m_renderer, 800, 600);
+                m_target = std::make_unique<SDLRenderingTarget>(m_renderer, 800, 600);
                 m_eventHandler = std::make_unique<EventHandler>();
 
                 m_cameraController = std::make_unique<CameraController>();
@@ -109,7 +109,7 @@ namespace amts {
                     
                     m_renderer->begin();
                         m_target->lock();
-                            m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
+                            m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
                         m_target->unlock();
 
                         m_mainDockspace->run([&]() {

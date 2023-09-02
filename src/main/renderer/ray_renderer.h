@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "utils.h"
 #include "materials/material_collection.h"
+#include "rendering_target.h"
 
 namespace amts {
     class RenderingTarget;
@@ -29,7 +30,7 @@ namespace amts {
             Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialCollection& materialPool) const;
 
             void render(
-                const std::unique_ptr<RenderingTarget>& target,
+                RenderingTarget* target,
                 const std::unique_ptr<Scene>& scene,
                 const std::unique_ptr<Camera>& camera,
                 const std::unique_ptr<MaterialCollection>& materialPool

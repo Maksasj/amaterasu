@@ -5,10 +5,11 @@
 #include <memory>
 
 #include "common/common.h"
+#include "sdl_rendering_target.h"
 #include "window.h"
 
 namespace amts {
-    class RenderingTarget;
+    class SDLRenderingTarget;
 
     class Renderer {
         private:
@@ -20,7 +21,7 @@ namespace amts {
 
             ~Renderer();
 
-            void present_target(const std::unique_ptr<RenderingTarget>& target);
+            void present_target(const std::unique_ptr<SDLRenderingTarget>& target);
             void present();
 
             void begin();
