@@ -12,6 +12,8 @@
 #include "ui/scene_view_ui_window.h"
 #include "ui/materials_ui_window.h"
 #include "ui/main_dockspace.h"
+#include "ui/result_view_ui_window.h"
+#include "ui/metrics_ui_window.h"
 
 namespace amts {
     class UIProxy : public CommonProxy {
@@ -29,6 +31,8 @@ namespace amts {
             std::unique_ptr<MainDockspaceUIWindow> m_mainDockspace;
             std::unique_ptr<SceneViewUIWindow> m_sceneViewUIWindow;
             std::unique_ptr<MaterialsUIWindow> m_materialsUIWindow;
+            std::unique_ptr<ResultViewUIWindow> m_resultViewUIWindow;
+            std::unique_ptr<MetricsUIWindow> m_metricsUIWindow;
 
         public:
             UIProxy() 
@@ -45,6 +49,8 @@ namespace amts {
                 m_mainDockspace = nullptr;
                 m_sceneViewUIWindow = nullptr;
                 m_materialsUIWindow = nullptr;
+                m_resultViewUIWindow = nullptr;
+                m_metricsUIWindow = nullptr;
             }
 
             ~UIProxy() override {
@@ -76,6 +82,8 @@ namespace amts {
                 m_mainDockspace = std::make_unique<MainDockspaceUIWindow>();
                 m_sceneViewUIWindow = std::make_unique<SceneViewUIWindow>();
                 m_materialsUIWindow = std::make_unique<MaterialsUIWindow>();
+                m_resultViewUIWindow = std::make_unique<ResultViewUIWindow>();
+                m_metricsUIWindow = std::make_unique<MetricsUIWindow>();
             }
 
             void load() override {
@@ -100,38 +108,18 @@ namespace amts {
                     }
                     
                     m_renderer->begin();
+                        m_target->lock();
+                            m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
+                        m_target->unlock();
 
-                    m_target->lock();
-                    m_rayRenderer->render(m_target, m_scene, m_mainCamera, m_materialPool);
-                    m_target->unlock();
-
-                    m_mainDockspace->run([&]() {
-                        if(ImGui::Begin("Result")) {
-                            auto imageSize = ImVec2(m_target->get_width(), m_target->get_height());
-                            auto centerPosition = ImVec2((ImGui::GetWindowSize().x - imageSize.x) * 0.5f, (ImGui::GetWindowSize().y - imageSize.y) * 0.5f);
-
-                            ImGui::SetCursorPos(centerPosition);
-                            ImGui::Image((void*)m_target->get_sdl_texture(), imageSize);
-
-                            ImGui::End();
-                        }
-
-                        m_sceneViewUIWindow->run(m_scene);
-                        m_materialsUIWindow->run(m_materialPool);
-                        
-                        if(ImGui::Begin("Renderer")) {
-                            ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-                            ImGui::Text("Dear ImGui %s", ImGui::GetVersion());
-                            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                            ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
-                            ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows, io.MetricsActiveAllocations);
-
-                            ImGui::End();
-                        }
-                    });
-
+                        m_mainDockspace->run([&]() {
+                            m_resultViewUIWindow->run(m_target);
+                            m_sceneViewUIWindow->run(m_scene);
+                            m_materialsUIWindow->run(m_materialPool);
+                            m_metricsUIWindow->run();
+                        });
                     m_renderer->end();
+                    
                     m_renderer->present();
                 }
             }
@@ -157,6 +145,8 @@ namespace amts {
                 m_mainDockspace = nullptr;
                 m_sceneViewUIWindow = nullptr;
                 m_materialsUIWindow = nullptr;
+                m_resultViewUIWindow = nullptr;
+                m_metricsUIWindow = nullptr;
 
                 SDL_Quit();
             }
