@@ -2,7 +2,7 @@
 #define _MATERIALS_UI_WINDOW_H_
 
 #include "common/common_ui_window.h"
-#include "materials/material_pool.h"
+#include "materials/material_collection.h"
 
 namespace amts {
     class MaterialsUIWindow : public CommonUIWindow {
@@ -17,7 +17,7 @@ namespace amts {
                 
             }
 
-            void run(std::unique_ptr<MaterialPool>& materials) {
+            void run(std::unique_ptr<MaterialCollection>& materials) {
                 if(!CommonUIWindow::start_window()) return;
 
                 std::ignore = materials;          

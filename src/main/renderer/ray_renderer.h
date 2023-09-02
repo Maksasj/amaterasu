@@ -11,7 +11,7 @@
 #include "scene/scene.h"
 #include "camera.h"
 #include "utils.h"
-#include "materials/material_pool.h"
+#include "materials/material_collection.h"
 
 namespace amts {
     class RenderingTarget;
@@ -26,13 +26,13 @@ namespace amts {
             ~RayRenderer();
 
             RayResult trace_ray(const Ray& ray, const Scene& scene) const;
-            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialPool& materialPool) const;
+            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialCollection& materialPool) const;
 
             void render(
                 const std::unique_ptr<RenderingTarget>& target,
                 const std::unique_ptr<Scene>& scene,
                 const std::unique_ptr<Camera>& camera,
-                const std::unique_ptr<MaterialPool>& materialPool
+                const std::unique_ptr<MaterialCollection>& materialPool
             );
 
             void reset_accumulation();

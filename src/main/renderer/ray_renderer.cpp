@@ -36,7 +36,7 @@ amts::RayResult amts::RayRenderer::trace_ray(const Ray& ray, const Scene& scene)
     return RayResult::invalid;
 }
 
-amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialPool& materialPool) const {
+amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialCollection& materialPool) const {
     const f32 aspectRatio = static_cast<f32>(width) / static_cast<f32>(height);
 
     Vec3f rayDirection = Vec3f(
@@ -74,7 +74,7 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
     return Color(light.x, light.y, light.z);
 }
 
-void amts::RayRenderer::render(const std::unique_ptr<RenderingTarget>& target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera, const std::unique_ptr<MaterialPool>& materialPool) {
+void amts::RayRenderer::render(const std::unique_ptr<RenderingTarget>& target, const std::unique_ptr<Scene>& scene, const std::unique_ptr<Camera>& camera, const std::unique_ptr<MaterialCollection>& materialPool) {
     assert(target->is_locked() || std::cout << "Target should be locked before trying to render" << std::endl);
 
     const auto targetWidth = target->get_width();

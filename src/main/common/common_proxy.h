@@ -4,7 +4,7 @@
 #include "common.h"
 
 #include "renderer/ray_renderer.h"
-#include "materials/material_pool.h"
+#include "materials/material_collection.h"
 #include "scene/scene.h"
 #include "camera.h"
 
@@ -14,7 +14,7 @@ namespace amts {
             std::unique_ptr<RayRenderer> m_rayRenderer;
             std::unique_ptr<Scene> m_scene;
             std::unique_ptr<Camera> m_mainCamera;
-            std::unique_ptr<MaterialPool> m_materialPool;
+            std::unique_ptr<MaterialCollection> m_materialPool;
 
         public:
             CommonProxy() 
@@ -37,7 +37,7 @@ namespace amts {
                 m_rayRenderer = std::make_unique<RayRenderer>();
                 m_scene = std::make_unique<Scene>();
                 m_mainCamera = std::make_unique<Camera>();
-                m_materialPool = std::make_unique<MaterialPool>();
+                m_materialPool = std::make_unique<MaterialCollection>();
             }
 
             virtual void load() {
