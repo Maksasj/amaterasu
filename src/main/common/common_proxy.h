@@ -41,6 +41,7 @@ namespace amts {
             }
 
             virtual void load() {
+                // Materials
                 m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
                     "Red metallic",
                     Color(1.0f, 0.0f, 0.0f),
@@ -73,10 +74,34 @@ namespace amts {
                     1.0f
                 ));
 
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(0.0f, 0.0f, -2.5f),  0.75f, 0));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(1.0f, 0.0f, -2.0f),  0.32f, 1));
-                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(Vec3f(-1.0f, 0.0f, -2.5f), 0.32f, 2));
-                m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(Vec3f(0.0f, -0.5f, 0.0f), 3));
+                // Scene objects
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(
+                    "Big red sphere", 
+                    Vec3f(0.0f, 0.0f, -2.5f), 
+                    0.75f,
+                    0
+                ));
+
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(
+                    "Blue sphere",
+                    Vec3f(1.0f, 0.0f, -2.0f),
+                    0.32f,
+                    1
+                ));
+                
+                m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(
+                    "Emissive sphere",
+                    Vec3f(-1.0f, 0.0f, -2.5f),
+                    0.32f,
+                    2
+                ));
+
+                m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(
+                    "Floor plane",
+                    Vec3f(0.0f, -0.5f, 0.0f),
+                    3,
+                    Vec3f(0.0f, -1.0f, 0.0f)
+                ));
             }
 
             virtual void run() {

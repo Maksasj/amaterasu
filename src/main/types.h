@@ -2,6 +2,7 @@
 #define _TYPES_H_
 
 #define OMNI_TYPES_MATRIX_COLLUM_MAJOR_ORDER
+#define OMNI_TYPES_ENABLE_REFLECTIONS
 #include <omni_types.tpp>
 
 namespace amts {

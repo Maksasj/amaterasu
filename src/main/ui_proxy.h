@@ -106,12 +106,12 @@ namespace amts {
 
                         m_cameraController->reset_move_flag();
                     }
+
+                    m_target->lock();
+                        m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
+                    m_target->unlock();
                     
                     m_renderer->begin();
-                        m_target->lock();
-                            m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
-                        m_target->unlock();
-
                         m_mainDockspace->run([&]() {
                             m_resultViewUIWindow->run(m_target);
                             m_sceneViewUIWindow->run(m_scene);
