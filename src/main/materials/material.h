@@ -22,6 +22,16 @@ namespace amts {
               m_metallic(metallic) {
 
         }
+
+        static std::unique_ptr<Material> create_default_material() {
+            return std::make_unique<Material>(
+                "Default material",
+                Color(1.0f, 0.0f, 1.0f),
+                Color(0.0f, 0.0f, 0.0f),
+                0.0f,
+                1.0f
+            );
+        }
     };
 }
 

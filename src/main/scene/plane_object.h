@@ -8,7 +8,7 @@ namespace amts {
         Vec3f m_normal;
 
         PlaneObject(const std::string& name, const Vec3f position, const u64 materialId, const Vec3f& normal) 
-            : Object(name, position, materialId),
+            : Object(PLANE, name, position, materialId),
               m_normal(normal) {
             
         } 
@@ -27,6 +27,10 @@ namespace amts {
             const Vec3f collisionPoint = ray.m_origin + ray.m_direction * t;
 
             return RayResult{t, collisionPoint, m_normal, 0};
+        }
+
+        std::unique_ptr<Object> clone() override {
+            return std::make_unique<PlaneObject>(*this);
         }
     };
 }

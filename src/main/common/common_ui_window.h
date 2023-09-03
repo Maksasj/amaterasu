@@ -9,15 +9,19 @@ namespace amts {
             const std::string m_title;
 
             bool m_focused;
+            bool m_open;
 
             void update_iternal_state() {
                 m_focused = ImGui::IsWindowFocused();
             }
+
         protected:
             bool start_window() {
-                update_iternal_state();
+                if(m_open == false) 
+                    return false;
 
-                if(ImGui::Begin(m_title.c_str())) {
+                if(ImGui::Begin(m_title.c_str(), &m_open)) {
+                    update_iternal_state();
                     return true;
                 }
 
@@ -30,9 +34,10 @@ namespace amts {
             }
 
         public:
-            CommonUIWindow(const std::string& title) 
+            CommonUIWindow(const std::string& title, const bool& open = true) 
                 : m_title(title),
-                  m_focused(false) {
+                  m_focused(false),
+                  m_open(open) {
 
             }
 
@@ -42,6 +47,18 @@ namespace amts {
 
             const bool& is_focused() const {
                 return m_focused;
+            }
+
+            const bool& is_open() const {
+                return m_open;
+            }
+
+            void force_open() {
+                m_open = true;
+            }
+
+            void force_close() {
+                m_open = false;
             }
     };
 }

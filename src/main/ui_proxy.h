@@ -98,13 +98,18 @@ namespace amts {
                     m_eventHandler->handle_events();
 
                     // Todo move camera should not take window, I assume all mouse input should be processed in update_input method
-                    m_cameraController->move_camera(m_mainCamera, m_window);
+                    if(m_resultViewUIWindow->is_focused()) 
+                        m_cameraController->move_camera(m_mainCamera, m_window);
 
-                    if(m_cameraController->is_moved()) {
+                    if(m_cameraController->is_moved())
+                        m_scene->mark_as_modified();
+
+                    if(m_scene->is_modified()) {
                         m_target->reset_accumulation();
                         m_rayRenderer->reset_accumulation();
 
                         m_cameraController->reset_move_flag();
+                        m_scene->reset_modified_flag();
                     }
 
                     m_target->lock();
@@ -114,9 +119,10 @@ namespace amts {
                     m_renderer->begin();
                         m_mainDockspace->run([&]() {
                             m_resultViewUIWindow->run(m_target);
-                            m_sceneViewUIWindow->run(m_scene);
+                            m_sceneViewUIWindow->run(m_scene, m_materialPool);
                             m_materialsUIWindow->run(m_materialPool);
                             m_metricsUIWindow->run();
+                            ImGui::ShowDemoWindow();
                         });
                     m_renderer->end();
                     

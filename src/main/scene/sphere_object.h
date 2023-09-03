@@ -7,8 +7,8 @@ namespace amts {
     struct SphereObject : public Object {
         f32 m_radius;
 
-        SphereObject(const std::string& name, const Vec3f position, const f32 radius, const u64& materialId) 
-            : Object(name, position, materialId), 
+        SphereObject(const std::string& name, const Vec3f position, const u64& materialId, const f32 radius) 
+            : Object(SPHERE, name, position, materialId), 
               m_radius(radius) {
 
         } 
@@ -42,6 +42,10 @@ namespace amts {
             }
 
             return RayResult::invalid;
+        }
+
+        std::unique_ptr<Object> clone() override {
+            return std::make_unique<SphereObject>(*this);
         }
     };
 }

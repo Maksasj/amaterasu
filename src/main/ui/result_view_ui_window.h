@@ -26,8 +26,6 @@ namespace amts {
                 ImGui::SetCursorPos(centerPosition);
                 ImGui::Image((void*)target->get_sdl_texture(), imageSize);
 
-                ImGui::End();
-
                 CommonUIWindow::end_window();
             }
     };
