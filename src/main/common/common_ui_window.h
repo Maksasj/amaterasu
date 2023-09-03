@@ -53,6 +53,10 @@ namespace amts {
                 return m_open;
             }
 
+            bool& ref_open_flag() {
+                return m_open;
+            }
+
             void force_open() {
                 m_open = true;
             }

@@ -54,6 +54,10 @@ namespace amts {
                 return m_sdlWindow;
             }
 
+            void force_close() {
+                m_close = true;
+            }
+
     };
 }
 

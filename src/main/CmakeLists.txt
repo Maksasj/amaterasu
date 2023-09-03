@@ -8,6 +8,7 @@ include_directories("../../3dparty/SDL/include")
 include_directories("../../3dparty/omni_types/src")
 include_directories("../../3dparty/imgui")
 include_directories("../../3dparty/imgui/backends")
+include_directories("../../3dparty/stb")
 
 file(GLOB_RECURSE MAIN-SRC *.cpp)
 
