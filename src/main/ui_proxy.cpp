@@ -84,15 +84,15 @@ void amts::UIProxy::run() {
         
         m_renderer->begin();
             m_mainDockspace->run([&]() {
-                if (ImGui::BeginMenuBar()) {
-                    if (ImGui::BeginMenu("File")) {
+                if(ImGui::BeginMenuBar()) {
+                    if(ImGui::BeginMenu("File")) {
                         if(ImGui::MenuItem("Save", nullptr, nullptr)) save_rendering_target_to_png(m_target.get(), "result.png");
                         if(ImGui::MenuItem("Exit", nullptr, nullptr)) m_window->force_close();
 
                         ImGui::EndMenu();
                     }
 
-                    if (ImGui::BeginMenu("View")) {
+                    if(ImGui::BeginMenu("View")) {
                         ImGui::MenuItem("Scene View", nullptr,      &m_sceneViewUIWindow->ref_open_flag());
                         ImGui::MenuItem("Materials", nullptr,       &m_resultViewUIWindow->ref_open_flag());
                         ImGui::MenuItem("Result View", nullptr,     &m_resultViewUIWindow->ref_open_flag());
@@ -106,7 +106,7 @@ void amts::UIProxy::run() {
 
                 m_resultViewUIWindow->run(m_target);
                 m_sceneViewUIWindow->run(m_scene, m_materialPool);
-                m_materialsUIWindow->run(m_materialPool);
+                m_materialsUIWindow->run(m_materialPool, m_scene);
                 m_metricsUIWindow->run();
                 ImGui::ShowDemoWindow();
             });

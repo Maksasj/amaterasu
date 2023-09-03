@@ -44,14 +44,14 @@ namespace amts {
 
                 // Object type
                 ImGui::Text("Object Type");
-                if (ImGui::BeginCombo("## Object Type", m_objectTypeFactory->to_string(m_selectedObjectType).c_str())) {
+                if(ImGui::BeginCombo("## Object Type", m_objectTypeFactory->to_string(m_selectedObjectType).c_str())) {
                     for(auto& objectType : *m_objectTypeFactory) {
                         const bool isSelected = (m_selectedObjectType == objectType.m_enumValue);
 
-                        if (ImGui::Selectable(objectType.m_name.c_str(), isSelected))
+                        if(ImGui::Selectable(objectType.m_name.c_str(), isSelected))
                             m_selectedObjectType = objectType.m_enumValue;
 
-                        if (isSelected)
+                        if(isSelected)
                             ImGui::SetItemDefaultFocus();
                     }
                     ImGui::EndCombo();
@@ -69,14 +69,14 @@ namespace amts {
                     m_objectName.clear();
 
                 ImGui::Text("Material");
-                if (ImGui::BeginCombo("## Material", materials->m_materials[m_objectMaterialId]->m_name.c_str())) {
+                if(ImGui::BeginCombo("## Material", materials->m_materials[m_objectMaterialId]->m_name.c_str())) {
                     for(u64 i = 0; i < materials->m_materials.size(); ++i) {
                         const bool isSelected = (m_objectMaterialId == i);
 
-                        if (ImGui::Selectable(materials->m_materials[i]->m_name.c_str(), isSelected))
+                        if(ImGui::Selectable(materials->m_materials[i]->m_name.c_str(), isSelected))
                             m_objectMaterialId = i;
 
-                        if (isSelected)
+                        if(isSelected)
                             ImGui::SetItemDefaultFocus();
                     }
 

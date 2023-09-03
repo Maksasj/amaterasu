@@ -53,7 +53,7 @@ namespace amts {
                             if(ImGui::Selectable(ss.str().c_str(), isSelected))
                                 m_selectedObjectIndex = i;
 
-                            if (isSelected)
+                            if(isSelected)
                                 ImGui::SetItemDefaultFocus();
                         }
 
@@ -63,7 +63,7 @@ namespace amts {
                     ImGui::TreePop();
                 }
 
-                if (ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if(ImGui::TreeNodeEx("Actions", ImGuiTreeNodeFlags_DefaultOpen)) {
                         if(ImGui::Button("Add object")) {
                             if(!m_objectCreateUIWindow->is_open()) 
                                 m_objectCreateUIWindow->force_open();
@@ -93,18 +93,18 @@ namespace amts {
                     }
                     ImGui::Separator();
 
-                    if (ImGui::TreeNodeEx("Sort", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    if(ImGui::TreeNodeEx("Sort", ImGuiTreeNodeFlags_DefaultOpen)) {
                         ImGui::Text("Sorting criteria ");
                         ImGui::SameLine();
                         /*
-                        if (ImGui::BeginCombo("## sorting criteria", _tileGroupSorters[_selectedSortingAlgorithm]._label.c_str(), ImGuiComboFlags_None)) {
+                        if(ImGui::BeginCombo("## sorting criteria", _tileGroupSorters[_selectedSortingAlgorithm]._label.c_str(), ImGuiComboFlags_None)) {
                             for (i32 n = 0; n < _tileGroupSorters.size(); n++) {
                                 const bool isSelected = (_selectedSortingAlgorithm == n);
 
-                                if (ImGui::Selectable(_tileGroupSorters[n]._label.c_str(), isSelected))
+                                if(ImGui::Selectable(_tileGroupSorters[n]._label.c_str(), isSelected))
                                     _selectedSortingAlgorithm = n;
 
-                                if (isSelected)
+                                if(isSelected)
                                     ImGui::SetItemDefaultFocus();
                             }
                             ImGui::EndCombo();

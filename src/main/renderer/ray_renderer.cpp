@@ -65,7 +65,7 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         const std::unique_ptr<Material>& material = materialPool.m_materials[object->m_materialId];  
 
         contribution *= material->m_albedo.to_vec3f();
-        light += (material->m_emissionColor * material->m_emissionStrength).to_vec3f();
+        light += (material->m_emissionColor).to_vec3f() * material->m_emissionStrength;
 
         ray.m_origin = result.hitPoint + result.hitNormal * 0.0001f;
         ray.m_direction = (result.hitNormal + Utils::random_in_unit_sphere() * material->m_metallic).normalize();

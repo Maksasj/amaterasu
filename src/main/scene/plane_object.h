@@ -16,12 +16,12 @@ namespace amts {
         RayResult hit(const Ray& ray) override {
             f32 denom = m_position.dot(m_normal);
 
-            if (abs(denom) <= 1e-4f)
+            if(abs(denom) <= 1e-4f)
                 return RayResult::invalid;
 
             f32 t = -(ray.m_origin.dot(m_normal) + denom) / ray.m_direction.dot(m_normal);
 
-            if (t <= 1e-4)
+            if(t <= 1e-4)
                 return RayResult::invalid;
 
             const Vec3f collisionPoint = ray.m_origin + ray.m_direction * t;

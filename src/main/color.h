@@ -87,6 +87,14 @@ namespace amts {
                 return *this;
             }
 
+            inline bool operator==(const Color& other) {
+                return m_values == other.m_values;
+            }
+
+            inline bool operator!=(const Color& other) {
+                return m_values != other.m_values;
+            }
+
             u32 to_u32() const {
                 const u8 r = static_cast<u8>(m_values.x * 255.0f);
                 const u8 g = static_cast<u8>(m_values.y * 255.0f);

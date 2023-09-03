@@ -23,6 +23,10 @@ namespace amts {
 
         }
 
+        std::unique_ptr<Material> clone() {
+            return std::make_unique<Material>(*this);
+        }
+
         static std::unique_ptr<Material> create_default_material() {
             return std::make_unique<Material>(
                 "Default material",

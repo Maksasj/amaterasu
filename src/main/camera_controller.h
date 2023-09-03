@@ -44,22 +44,22 @@ namespace amts {
 
                 Vec3f moveVector = Vec3f::splat(0.0f);
 
-                if (m_keys[SDLK_w])
+                if(m_keys[SDLK_w])
                     moveVector -= Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
 
-                if (m_keys[SDLK_s])
+                if(m_keys[SDLK_s])
                     moveVector += Vec3f(camera.m_direction.z, 0.0f, camera.m_direction.x).normalize() * 0.02f;
 
-                if (m_keys[SDLK_a])
+                if(m_keys[SDLK_a])
                     moveVector -= Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
 
-                if (m_keys[SDLK_d])
+                if(m_keys[SDLK_d])
                     moveVector += Vec3f(1.0f, 0.0f, -1.0f) * camera.m_direction.normalize() * 0.02f;
 
-                if (m_keys[SDLK_SPACE])
+                if(m_keys[SDLK_SPACE])
                     moveVector.y += 0.1f;
 
-                if (m_keys[SDLK_LSHIFT])
+                if(m_keys[SDLK_LSHIFT])
                     moveVector.y -= 0.1f;
 
                 camera.m_position += moveVector;
