@@ -34,7 +34,11 @@ void amts::UIProxy::init() {
 
     m_window = std::make_unique<Window>("Amaterasu", 800, 600);
     m_renderer = std::make_unique<Renderer>(m_window);
-    m_target = std::make_unique<SDLRenderingTarget>(m_renderer, 800, 600);
+
+    m_viewTexture = std::make_unique<SDLRenderingTarget>(m_renderer, 800, 600);
+    m_target = std::make_unique<RenderingTarget>(800, 600);
+    m_target->allocate();
+    
     m_eventHandler = std::make_unique<EventHandler>();
 
     m_cameraController = std::make_unique<CameraController>();
@@ -60,28 +64,36 @@ void amts::UIProxy::load() {
 }
 
 void amts::UIProxy::run() {
+    bool stopRenderingThread = false;
+    std::thread renderingThread([&]() {
+        while (!m_window->is_open()) {
+            if(!stopRenderingThread) {
+                if(m_scene->is_modified()) {
+                    m_target->reset_accumulation();
+                    m_rayRenderer->reset_accumulation();
+
+                    m_cameraController->reset_move_flag();
+                    m_scene->reset_modified_flag();
+                }
+
+                m_target->lock();
+                    m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
+                m_target->unlock();
+            }
+        }
+    });
+    
     while (!m_window->is_open()) {
         m_eventHandler->handle_events();
 
         // Todo move camera should not take window, I assume all mouse input should be processed in update_input method
+        stopRenderingThread = true;
         if(m_resultViewUIWindow->is_focused()) 
             m_cameraController->move_camera(m_mainCamera, m_window);
 
         if(m_cameraController->is_moved())
             m_scene->mark_as_modified();
 
-        if(m_scene->is_modified()) {
-            m_target->reset_accumulation();
-            m_rayRenderer->reset_accumulation();
-
-            m_cameraController->reset_move_flag();
-            m_scene->reset_modified_flag();
-        }
-
-        m_target->lock();
-            m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
-        m_target->unlock();
-        
         m_renderer->begin();
             m_mainDockspace->run([&]() {
                 if(ImGui::BeginMenuBar()) {
@@ -104,16 +116,22 @@ void amts::UIProxy::run() {
                     ImGui::EndMenuBar();
                 }
 
-                m_resultViewUIWindow->run(m_target);
+                m_viewTexture->lock();
+                    m_viewTexture->copy_pixel_data(*m_target);
+                m_viewTexture->unlock();
+
+                m_resultViewUIWindow->run(m_viewTexture);
                 m_sceneViewUIWindow->run(m_scene, m_materialPool);
                 m_materialsUIWindow->run(m_materialPool, m_scene);
                 m_metricsUIWindow->run();
-                ImGui::ShowDemoWindow();
             });
         m_renderer->end();
         
         m_renderer->present();
+        stopRenderingThread = false;
     }
+
+    renderingThread.join();
 }
 
 void amts::UIProxy::unload() {
@@ -129,7 +147,10 @@ void amts::UIProxy::cleanup() {
 
     m_window = nullptr;
     m_renderer = nullptr;
+    
+    m_viewTexture = nullptr;
     m_target = nullptr;
+
     m_eventHandler = nullptr;
 
     m_cameraController = nullptr;

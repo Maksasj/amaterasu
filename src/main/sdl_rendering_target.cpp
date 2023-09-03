@@ -29,6 +29,7 @@ void amts::SDLRenderingTarget::lock() {
 void amts::SDLRenderingTarget::unlock() {
     RenderingTarget::unlock();
 
+    // SDL_UpdateTexture(m_sdlTexture, NULL, get_pixel_data_ptr(), m_pixelDataPitch);
     SDL_UnlockTexture(m_sdlTexture);
 }
 

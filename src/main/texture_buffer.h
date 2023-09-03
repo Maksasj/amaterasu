@@ -35,6 +35,10 @@ namespace amts {
                 return &m_pixelData;
             }
 
+            void copy_pixel_data(const TextureBuffer<u32>& textureBuffer) {
+                std::memcpy(m_pixelData, textureBuffer.m_pixelData, sizeof(u32) * textureBuffer.get_area());
+            }
+
             pixelDataType& get_pixel_at(const u64& i) {
                 return static_cast<pixelDataType*>(m_pixelData)[i];
             }

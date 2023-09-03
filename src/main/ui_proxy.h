@@ -1,11 +1,14 @@
 #ifndef _UI_PROXY_H_
 #define _UI_PROXY_H_
 
+#include <thread>
+
 #include "renderer.h"
 #include "sdl_rendering_target.h"
 #include "camera_controller.h"
 #include "event_handler.h"
 #include "imgui_event_receiver.h"
+#include "sdl_texture.h"
 
 #include "common/common_proxy.h"
 
@@ -20,7 +23,9 @@ namespace amts {
         private:
             std::unique_ptr<Window> m_window;
             std::unique_ptr<Renderer> m_renderer;
-            std::unique_ptr<SDLRenderingTarget> m_target;
+            
+            std::unique_ptr<SDLRenderingTarget> m_viewTexture;
+            std::unique_ptr<RenderingTarget> m_target;
 
             std::unique_ptr<EventHandler> m_eventHandler;
 
