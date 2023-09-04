@@ -68,6 +68,8 @@ void amts::UIProxy::run() {
     std::thread renderingThread([&]() {
         while (!m_window->is_open()) {
             if(!stopRenderingThread) {
+                m_scene->mark_as_rendering();
+
                 if(m_scene->is_modified()) {
                     m_target->reset_accumulation();
                     m_rayRenderer->reset_accumulation();
@@ -79,7 +81,10 @@ void amts::UIProxy::run() {
                 m_target->lock();
                     m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
                 m_target->unlock();
+                
             }
+            
+            m_scene->reset_rendering_flag();
         }
     });
     
