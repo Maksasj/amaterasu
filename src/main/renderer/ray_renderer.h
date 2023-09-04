@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "materials/material_collection.h"
 #include "rendering_target.h"
+#include "ray_renderer_properties.h"
 
 namespace amts {
     class RenderingTarget;
@@ -20,6 +21,8 @@ namespace amts {
     class RayRenderer {
         private:
             u64 m_frame;
+
+            RayRendererProperties m_properties;
 
         public:
             RayRenderer();
