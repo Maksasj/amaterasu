@@ -26,6 +26,7 @@ namespace amts {
                 m_objectTypeInfos.emplace_back(ObjectTypeInfo{SPHERE, "Sphere"});
                 m_objectTypeInfos.emplace_back(ObjectTypeInfo{PLANE, "Plane"});
                 m_objectTypeInfos.emplace_back(ObjectTypeInfo{MARCHING_SPHERE, "Marching Sphere"});
+                m_objectTypeInfos.emplace_back(ObjectTypeInfo{MARCHING_MANDELBULB, "Marching Mandelbulb"});
             }
 
             std::string to_string(const ObjectType& objectType) {
@@ -33,6 +34,7 @@ namespace amts {
                     case ObjectType::SPHERE: return "Sphere";
                     case ObjectType::PLANE: return "Plane";
                     case ObjectType::MARCHING_SPHERE: return "Marching Sphere";
+                    case ObjectType::MARCHING_MANDELBULB: return "Marching Mandelbulb";
                     default: throw std::runtime_error("Object type is not implemented");
                 }
 

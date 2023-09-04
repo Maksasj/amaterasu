@@ -5,6 +5,7 @@
 #include "plane_object.h"
 #include "sphere_object.h"
 #include "marching_sphere_object.h"
+#include "marching_mandelbulb.h"
 
 namespace amts {
     class Scene {

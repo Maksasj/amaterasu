@@ -7,7 +7,8 @@ namespace amts {
         NONE = 0,
         SPHERE,
         PLANE,
-        MARCHING_SPHERE
+        MARCHING_SPHERE,
+        MARCHING_MANDELBULB
     };
 }
 
