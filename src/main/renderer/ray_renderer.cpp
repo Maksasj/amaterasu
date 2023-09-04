@@ -51,7 +51,7 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
     Vec3f light = Vec3f::splat(0.0f);
     Vec3f contribution = Vec3f::splat(1.0f);
 
-    const u64 maxBounces = 3;
+    const u64 maxBounces = 10;
     for(u64 b = 0; b < maxBounces; ++b) {
         const auto result = trace_ray(ray, scene);
 
@@ -65,10 +65,12 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         const std::unique_ptr<Material>& material = materialPool.m_materials[object->m_materialId];  
 
         contribution *= material->m_albedo.to_vec3f();
-        light += (material->m_emissionColor).to_vec3f() * material->m_emissionStrength;
+        light += material->m_emissionColor.to_vec3f() * material->m_emissionStrength;
 
         ray.m_origin = result.hitPoint + result.hitNormal * 0.0001f;
-        ray.m_direction = (result.hitNormal + Utils::random_in_unit_sphere() * material->m_metallic).normalize();
+
+        const Vec3f reflection = ray.m_direction - result.hitNormal * 2.0f * ray.m_direction.dot(result.hitNormal); 
+        ray.m_direction = (reflection + Utils::random_in_unit_sphere() * material->m_metallic).normalize();
     }
 
     return Color(light.x, light.y, light.z);

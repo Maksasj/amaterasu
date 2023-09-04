@@ -23,7 +23,6 @@ namespace amts {
 
         public:
             RayRenderer();
-
             ~RayRenderer();
 
             RayResult trace_ray(const Ray& ray, const Scene& scene) const;
