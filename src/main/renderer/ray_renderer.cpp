@@ -44,9 +44,9 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         (y / static_cast<f32>(height) - 0.5f) / aspectRatio, 
         -1.0f);
 
-    if(m_properties.m_enablAntiAliasing) {
-        rayDirection.x += (Utils::random_float() - 0.5f) * 0.00125f;
-        rayDirection.y += (Utils::random_float() - 0.5f) * 0.00125f;
+    if(m_properties.m_enableAntiAliasing) {
+        rayDirection.x += (Utils::random_float() - 0.5f) * m_properties.m_antiAliasingFactor;
+        rayDirection.y += (Utils::random_float() - 0.5f) * m_properties.m_antiAliasingFactor;
     }
 
     Vec4f rotated = camera.get_rotation_matrix() * Vec4f(rayDirection.x, rayDirection.y, rayDirection.z, 1.0);
