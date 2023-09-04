@@ -6,7 +6,8 @@ namespace amts {
     enum ObjectType {
         NONE = 0,
         SPHERE,
-        PLANE
+        PLANE,
+        MARCHING_SPHERE
     };
 }
 

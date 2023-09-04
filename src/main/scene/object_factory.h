@@ -8,6 +8,7 @@
 
 #include "sphere_object.h"
 #include "plane_object.h"
+#include "marching_sphere_object.h"
 
 namespace amts {
     class ObjectTypeFactory {
@@ -24,12 +25,14 @@ namespace amts {
             ObjectTypeFactory() {
                 m_objectTypeInfos.emplace_back(ObjectTypeInfo{SPHERE, "Sphere"});
                 m_objectTypeInfos.emplace_back(ObjectTypeInfo{PLANE, "Plane"});
+                m_objectTypeInfos.emplace_back(ObjectTypeInfo{MARCHING_SPHERE, "Marching Sphere"});
             }
 
             std::string to_string(const ObjectType& objectType) {
                 switch (objectType) {
                     case ObjectType::SPHERE: return "Sphere";
                     case ObjectType::PLANE: return "Plane";
+                    case ObjectType::MARCHING_SPHERE: return "Marching Sphere";
                     default: throw std::runtime_error("Object type is not implemented");
                 }
 
