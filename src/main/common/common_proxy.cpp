@@ -10,7 +10,8 @@ amts::CommonProxy::CommonProxy()
     : m_rayRenderer(nullptr),
         m_scene(nullptr),
         m_mainCamera(nullptr),
-        m_materialPool(nullptr) { 
+        m_materialPool(nullptr), 
+        m_skyTexture(nullptr) { 
 
 }
 
@@ -72,6 +73,7 @@ void amts::CommonProxy::load() {
         0.75f
     ));
     */
+
     m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(
         "Big red sphere", 
         Vec3f(0.0f, 0.0f, -2.5f), 
@@ -99,6 +101,8 @@ void amts::CommonProxy::load() {
         4,
         Vec3f(0.0f, -1.0f, 0.0f)
     ));
+
+    m_skyTexture = TextureBuffer<u32>::load_pixel_data_from_png_file("assets/images/fluela_wisshorn_spherical_panorama.png");
 }
 
 void amts::CommonProxy::run() {
@@ -106,7 +110,7 @@ void amts::CommonProxy::run() {
 }
 
 void amts::CommonProxy::unload() {
-
+    m_skyTexture = nullptr;
 }
 
 void amts::CommonProxy::cleanup() {

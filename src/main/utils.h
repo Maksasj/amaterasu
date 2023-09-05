@@ -5,6 +5,8 @@
 
 #include "common/common.h"
 
+#define OMNI_TYPES_PI 3.14159265f
+
 namespace amts {
     struct Utils {
         static f32 random_float() {
@@ -17,6 +19,16 @@ namespace amts {
             const f32 z = random_float() * 2.0f - 1.0f;
 
             return Vec3f(x, y, z).normalize();
+        }
+
+        // Todo, move this function to omni::types
+        template<typename T>
+        static int sgn(T val) {
+            return (T(0) < val) - (val < T(0));
+        }
+
+        static f32 atan_f(const f32& x, const f32& y) {
+            return -sgn(x*y)*atan((abs(x)-abs(y))/(abs(x)+abs(y)));
         }
     };
 }

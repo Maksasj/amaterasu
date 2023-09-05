@@ -23,25 +23,16 @@ namespace amts {
                 std::min(a.w, b.w)
             );
         }
-
-        template<typename T>
-        static int sgn(T val) {
-            return (T(0) < val) - (val < T(0));
-        }
-
-        static f32 atan_f(const f32& x, const f32& y) {
-            return -sgn(x*y)*atan((abs(x)-abs(y))/(abs(x)+abs(y)));
-        }
  
         f32 get_distance(const Vec3f& point) const {
-            const static u64 iterations = 6;
+            const static u64 iterations = 12;
             const static f32 power = 8.0f;
 
             Vec3f w = (point - m_position);
-            float m = w.dot(w);
+            f32 m = w.dot(w);
 
             Vec4f trap = Vec4f(abs(w.x), abs(w.y), abs(w.z), m);
-            float dz = 1.0;
+            f32 dz = 1.0;
 
             for(u64 i = 0; i < iterations; ++i) {
                 // trigonometric version
@@ -51,9 +42,9 @@ namespace amts {
                 // dz = 8.0*pow(sqrt(m),7.0)*dz + 1.0;
 
                 // z = z^8+z
-                float r = w.length();
-                float b = power * acos(w.y / r);
-                float a = power * atan_f(w.x, w.z);
+                f32 r = w.length();
+                f32 b = power * acos(w.y / r);
+                f32 a = power * atan2f(w.x, w.z);
                 w = (point - m_position) + Vec3f(sin(b) * sin(a), cos(b), sin(b) * cos(a)) * pow(r, 8.0);
 
                 trap = min_f(trap, Vec4f(abs(w.x), abs(w.y), abs(w.z), m));

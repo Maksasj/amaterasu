@@ -14,6 +14,7 @@ namespace amts {
             const u64 m_width;
             const u64 m_height;
 
+
         public:
             TextureBuffer(const u64& width, const u64& height) 
                 : m_pixelData(nullptr),
@@ -22,6 +23,13 @@ namespace amts {
 
             }
 
+            TextureBuffer(void* pixelData, const u64& width, const u64& height) 
+                : m_pixelData(pixelData),
+                  m_width(width),
+                  m_height(height) {
+
+            }
+            
             virtual ~TextureBuffer() {
                 if(m_pixelData != nullptr)
                     free(m_pixelData);
@@ -45,6 +53,13 @@ namespace amts {
 
             pixelDataType& get_pixel_at(const u64& x, const u64& y) {
                 return static_cast<pixelDataType*>(m_pixelData)[x + y * m_width];
+            }
+
+            static std::unique_ptr<TextureBuffer<u32>> load_pixel_data_from_png_file(const std::string& fileName)  {
+                i32 width, height, n;
+                u8 *pixelData = stbi_load(fileName.c_str(), &width, &height, &n, 0);
+
+                return std::make_unique<TextureBuffer<u32>>(static_cast<void*>(pixelData), static_cast<u64>(width), static_cast<u64>(height));
             }
 
             const u64& get_width() const {

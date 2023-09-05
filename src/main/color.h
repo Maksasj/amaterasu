@@ -107,6 +107,14 @@ namespace amts {
             Vec3f to_vec3f() const {
                 return Vec3f(m_values.x, m_values.y, m_values.z);
             }
+
+            static Color from_vec4f(const u32& color) {
+                return Color(
+                    (color & 0xFF)          / 255.0f,
+                    ((color >> 8) & 0xFF)   / 255.0f,
+                    ((color >> 16) & 0xFF)  / 255.0f,
+                    ((color >> 24) & 0xFF)  / 255.0f);
+            }
     };
 }
 

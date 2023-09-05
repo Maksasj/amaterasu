@@ -65,6 +65,9 @@ void amts::UIProxy::load() {
 
 void amts::UIProxy::run() {
     bool stopRenderingThread = false;
+
+    m_rayRenderer->set_active_sky_texture(m_skyTexture);
+
     std::thread renderingThread([&]() {
         while (!m_window->is_open()) {
             if(!stopRenderingThread) {

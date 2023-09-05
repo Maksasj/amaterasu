@@ -30,6 +30,8 @@ namespace amts {
             std::vector<u64> m_targetWidthIterator;
             std::vector<u64> m_targetHeightIterator;
 
+            TextureBuffer<u32>* m_skyTexture;
+
         public:
             RayRenderer();
             ~RayRenderer();
@@ -43,6 +45,8 @@ namespace amts {
                 const std::unique_ptr<Camera>& camera,
                 const std::unique_ptr<MaterialCollection>& materialPool
             );
+
+            void set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture);
 
             void reset_accumulation();
     };

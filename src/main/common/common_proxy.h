@@ -16,6 +16,8 @@ namespace amts {
             std::unique_ptr<Camera> m_mainCamera;
             std::unique_ptr<MaterialCollection> m_materialPool;
 
+            std::unique_ptr<TextureBuffer<u32>> m_skyTexture;
+
         public:
             CommonProxy();
 

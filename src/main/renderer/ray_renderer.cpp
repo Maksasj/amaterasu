@@ -2,7 +2,8 @@
 #include "rendering_target.h"
 
 amts::RayRenderer::RayRenderer::RayRenderer() 
-    : m_frame(1) {
+    : m_frame(1),
+    m_skyTexture(nullptr) {
 
     m_targetWidthIterator.resize(800);
     m_targetHeightIterator.resize(600);
@@ -70,8 +71,23 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         const auto result = trace_ray(ray, scene);
 
         if(result.hitDistance < 0.0f) {
-            const Vec3f skyColor = Vec3f(1.0f, 1.0f, 1.0f);
+            if(m_skyTexture == nullptr) {
+                const Vec3f skyColor = Vec3f(1.0f, 1.0f, 1.0f);
+                light += skyColor * contribution;
+                break;
+            }
+
+            const auto& d = ray.m_direction;
+            const Vec2f uv = Vec2f(atan2(d.z, d.x) / (2.0f * OMNI_TYPES_PI), asinf(d.y) / OMNI_TYPES_PI) + 0.5f;
+
+            const u64 x = static_cast<u64>(uv.x * static_cast<f32>(m_skyTexture->get_width() - 1));
+            const u64 y = static_cast<u64>(uv.y * static_cast<f32>(m_skyTexture->get_height() - 1));
+
+            const u32& pixel = m_skyTexture->get_pixel_at(x, y);
+            const Vec3f skyColor = Color::from_vec4f(pixel).to_vec3f(); // Todo, cringe conversions
+
             light += skyColor * contribution;
+
             break;
         }
 
@@ -123,6 +139,10 @@ void amts::RayRenderer::render(RenderingTarget* target, const std::unique_ptr<Sc
     */
 
     ++m_frame;
+}
+
+void amts::RayRenderer::set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture) {
+    m_skyTexture = skyTexture.get();
 }
 
 void amts::RayRenderer::reset_accumulation() {
