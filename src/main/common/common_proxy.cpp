@@ -64,6 +64,14 @@ void amts::CommonProxy::load() {
     ));
 
     // Scene objects
+    /*
+    m_scene->m_objects.emplace_back(std::make_unique<MarchingMandelbulb>(
+        "Big red sphere", 
+        Vec3f(0.0f, -1.5f, -2.5f), 
+        1,
+        0.75f
+    ));
+    */
     m_scene->m_objects.emplace_back(std::make_unique<SphereObject>(
         "Big red sphere", 
         Vec3f(0.0f, 0.0f, -2.5f), 
@@ -84,7 +92,7 @@ void amts::CommonProxy::load() {
         3,
         0.32f
     ));
-
+   
     m_scene->m_objects.emplace_back(std::make_unique<PlaneObject>(
         "Floor plane",
         Vec3f(0.0f, -0.5f, 0.0f),

@@ -3,6 +3,9 @@
 
 #include <cassert>
 #include <memory>
+#include <thread>
+#include <algorithm>
+#include <execution>
 
 #include "common/common.h"
 #include "window.h"
@@ -23,6 +26,9 @@ namespace amts {
             u64 m_frame;
 
             RayRendererProperties m_properties;
+
+            std::vector<u64> m_targetWidthIterator;
+            std::vector<u64> m_targetHeightIterator;
 
         public:
             RayRenderer();

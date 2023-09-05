@@ -34,7 +34,7 @@ namespace amts {
         }
  
         f32 get_distance(const Vec3f& point) const {
-            const static u64 iterations = 4;
+            const static u64 iterations = 6;
             const static f32 power = 8.0f;
 
             Vec3f w = (point - m_position);
@@ -43,7 +43,7 @@ namespace amts {
             Vec4f trap = Vec4f(abs(w.x), abs(w.y), abs(w.z), m);
             float dz = 1.0;
 
-            for (int i = 0; i < iterations; i++) {
+            for(u64 i = 0; i < iterations; ++i) {
                 // trigonometric version
 
                 // dz = 8*z^7*dz
@@ -71,9 +71,9 @@ namespace amts {
         RayResult hit(const Ray& ray) override {
             f32 d = 0.0f;
 
-            const static u64 maxSteps = 100;
+            const static u64 maxSteps = 1000;
             const static u64 maxDist = 10;
-            const static f32 epsilon = 0.0001f;
+            const static f32 epsilon = 0.000001f;
 
             for(u64 i = 0; i < maxSteps; ++i) {
                 Vec3f p = ray.m_origin + ray.m_direction.normalize() * d;

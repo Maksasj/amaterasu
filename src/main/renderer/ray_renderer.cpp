@@ -4,6 +4,14 @@
 amts::RayRenderer::RayRenderer::RayRenderer() 
     : m_frame(1) {
 
+    m_targetWidthIterator.resize(800);
+    m_targetHeightIterator.resize(600);
+
+    for(u64 i = 0; i < 800; ++i) 
+        m_targetWidthIterator[i] = i;
+
+    for(u64 i = 0; i < 600; ++i) 
+        m_targetHeightIterator[i] = i;
 }
 
 amts::RayRenderer::RayRenderer::~RayRenderer() {
@@ -90,6 +98,18 @@ void amts::RayRenderer::render(RenderingTarget* target, const std::unique_ptr<Sc
 
     TextureBuffer<Color>& accumulatedColor = target->get_accumulated_color();
 
+    std::for_each(std::execution::par, m_targetWidthIterator.begin(), m_targetWidthIterator.end(), [&](const u64& x) {
+        std::for_each(std::execution::par, m_targetHeightIterator.begin(), m_targetHeightIterator.end(), [&](const u64& y) {
+            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, *camera, *materialPool).clamp(0.0f, 1.0f);
+
+            Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
+            accumulatedPixel += color;
+
+            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_frame)).to_u32();
+        });
+    });
+
+    /*
     for(u64 x = 0; x < targetWidth; ++x) {
         for(u64 y = 0; y < targetHeight; ++y) {
             const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, *camera, *materialPool).clamp(0.0f, 1.0f);
@@ -100,6 +120,7 @@ void amts::RayRenderer::render(RenderingTarget* target, const std::unique_ptr<Sc
             target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_frame)).to_u32();
         }
     }
+    */
 
     ++m_frame;
 }
