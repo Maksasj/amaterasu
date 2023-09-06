@@ -10,8 +10,8 @@ amts::CommonProxy::CommonProxy()
     : m_rayRenderer(nullptr),
         m_scene(nullptr),
         m_mainCamera(nullptr),
-        m_materialPool(nullptr), 
-        m_skyTexture(nullptr) { 
+        m_materialCollection(nullptr), 
+        m_activeSkyTexture(nullptr) { 
 
 }
 
@@ -27,12 +27,12 @@ void amts::CommonProxy::init() {
     m_rayRenderer = std::make_unique<RayRenderer>();
     m_scene = std::make_unique<Scene>();
     m_mainCamera = std::make_unique<Camera>();
-    m_materialPool = std::make_unique<MaterialCollection>();
+    m_materialCollection = std::make_unique<MaterialCollection>();
 }
 
 void amts::CommonProxy::load() {
     // Materials
-    m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+    m_materialCollection->m_materials.emplace_back(std::make_unique<Material>(
         "Red metallic",
         Color(1.0f, 0.0f, 0.0f),
         Color(0.0f, 0.0f, 0.0f),
@@ -40,7 +40,7 @@ void amts::CommonProxy::load() {
         0.1f
     ));
 
-    m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+    m_materialCollection->m_materials.emplace_back(std::make_unique<Material>(
         "Blue diffuse",
         Color(0.0f, 0.0f, 1.0f),
         Color(0.0f, 0.0f, 0.0f),
@@ -48,7 +48,7 @@ void amts::CommonProxy::load() {
         1.0f
     ));
 
-    m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+    m_materialCollection->m_materials.emplace_back(std::make_unique<Material>(
         "Sun",
         Color(0.99f, 0.32f, 0.0f),
         Color(0.99f, 0.32f, 0.0f),
@@ -56,7 +56,7 @@ void amts::CommonProxy::load() {
         0.8f
     ));
 
-    m_materialPool->m_materials.emplace_back(std::make_unique<Material>(
+    m_materialCollection->m_materials.emplace_back(std::make_unique<Material>(
         "Gray floor",
         Color(0.3f, 0.3f, 0.3f),
         Color(0.0f, 0.0f, 0.0f),
@@ -102,7 +102,7 @@ void amts::CommonProxy::load() {
         Vec3f(0.0f, -1.0f, 0.0f)
     ));
 
-    m_skyTexture = TextureBuffer<u32>::load_pixel_data_from_png_file("assets/images/fluela_wisshorn_spherical_panorama.png");
+    m_activeSkyTexture = TextureBuffer<u32>::load_pixel_data_from_png_file("assets/images/fluela_wisshorn_spherical_panorama.png");
 }
 
 void amts::CommonProxy::run() {
@@ -110,14 +110,14 @@ void amts::CommonProxy::run() {
 }
 
 void amts::CommonProxy::unload() {
-    m_skyTexture = nullptr;
+    m_activeSkyTexture = nullptr;
 }
 
 void amts::CommonProxy::cleanup() {
     m_rayRenderer = nullptr;
     m_scene = nullptr;
     m_mainCamera = nullptr;
-    m_materialPool = nullptr;
+    m_materialCollection = nullptr;
 }
 
 void amts::CommonProxy::save_rendering_target_to_png(RenderingTarget* target, const std::string& fileName) {

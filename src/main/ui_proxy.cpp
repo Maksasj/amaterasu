@@ -66,7 +66,10 @@ void amts::UIProxy::load() {
 void amts::UIProxy::run() {
     bool stopRenderingThread = false;
 
-    m_rayRenderer->set_active_sky_texture(m_skyTexture);
+    m_rayRenderer->set_active_scene(m_scene);
+    m_rayRenderer->set_active_camera(m_mainCamera);
+    m_rayRenderer->set_active_material_collection(m_materialCollection);
+    m_rayRenderer->set_active_sky_texture(m_activeSkyTexture);
 
     std::thread renderingThread([&]() {
         while (!m_window->is_open()) {
@@ -82,7 +85,7 @@ void amts::UIProxy::run() {
                 }
 
                 m_target->lock();
-                    m_rayRenderer->render(m_target.get(), m_scene, m_mainCamera, m_materialPool);
+                    m_rayRenderer->render(m_target.get());
                 m_target->unlock();
                 
             }
@@ -129,8 +132,8 @@ void amts::UIProxy::run() {
                 m_viewTexture->unlock();
 
                 m_resultViewUIWindow->run(m_viewTexture);
-                m_sceneViewUIWindow->run(m_scene, m_materialPool);
-                m_materialsUIWindow->run(m_materialPool, m_scene);
+                m_sceneViewUIWindow->run(m_scene, m_materialCollection);
+                m_materialsUIWindow->run(m_materialCollection, m_scene);
                 m_metricsUIWindow->run();
             });
         m_renderer->end();

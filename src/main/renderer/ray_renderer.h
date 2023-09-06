@@ -30,22 +30,23 @@ namespace amts {
             std::vector<u64> m_targetWidthIterator;
             std::vector<u64> m_targetHeightIterator;
 
-            TextureBuffer<u32>* m_skyTexture;
+            Scene* m_activeScene;
+            Camera* m_activeCamera;
+            MaterialCollection* m_activeMaterialCollection;
+            TextureBuffer<u32>* m_activeSkyTexture;
 
         public:
             RayRenderer();
             ~RayRenderer();
 
-            RayResult trace_ray(const Ray& ray, const Scene& scene) const;
-            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height, const Scene& scene, const Camera& camera, const MaterialCollection& materialPool) const;
+            RayResult trace_ray(const Ray& ray) const;
+            Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height) const;
 
-            void render(
-                RenderingTarget* target,
-                const std::unique_ptr<Scene>& scene,
-                const std::unique_ptr<Camera>& camera,
-                const std::unique_ptr<MaterialCollection>& materialPool
-            );
+            void render(RenderingTarget* target);
 
+            void set_active_scene(std::unique_ptr<Scene>& scene);
+            void set_active_camera(std::unique_ptr<Camera>& camera);
+            void set_active_material_collection(std::unique_ptr<MaterialCollection>& materialCollection);
             void set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture);
 
             void reset_accumulation();
