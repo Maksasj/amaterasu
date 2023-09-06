@@ -2,6 +2,7 @@
 #define _RAY_RENDERER_PROFILE_H_
 
 #include "common/common.h"
+#include "ray_renderer_present_mode.h"
 
 #define HIGH_IMPACT
 #define LOW_IMPACT
@@ -27,9 +28,12 @@ namespace amts {
         LOW_IMPACT  f32 m_antiAliasingFactor; // Done
 
         // Present
-        NO_IMPACT   u64 m_presentMode; // u64 should be changet to enum
+        NO_IMPACT   RayRendererPresentMode m_presentMode; // u64 should be changet to enum
         HIGH_IMPACT bool m_multiThreading;
+        HIGH_IMPACT bool m_immediateAccumulation;
         NO_IMPACT   u64 m_samplesPerPixel;
+        NO_IMPACT   u64 m_tilesInRow;
+        NO_IMPACT   u64 m_tilesInCollum;
 
         static RayRendererProfile create_default_renderer_profile() {
             RayRendererProfile profile;
@@ -52,9 +56,13 @@ namespace amts {
             profile.m_antiAliasingFactor = 0.00125f;
 
             // Present
-            profile.m_presentMode = 0;
+            // profile.m_presentMode = IMMEDIATE_ACCUMULATION;
+            profile.m_presentMode = TILED_ACCUMULATION;
             profile.m_multiThreading = true;
-            profile.m_samplesPerPixel = 0;
+            profile.m_immediateAccumulation = true;
+            profile.m_samplesPerPixel = 1000;
+            profile.m_tilesInRow = 5;
+            profile.m_tilesInCollum = 5;
 
             return profile;
         }

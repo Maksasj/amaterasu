@@ -23,12 +23,16 @@ namespace amts {
 
     class RayRenderer {
         private:
+            bool m_done;
             u64 m_accumulatedSamples;
 
             RayRendererProfile m_properties;
 
             std::vector<u64> m_targetWidthIterator;
             std::vector<u64> m_targetHeightIterator;
+
+            std::vector<u64> m_targetTiledWidthIterator;
+            std::vector<u64> m_targetTiledHeightIterator;
 
             Scene* m_activeScene;
             Camera* m_activeCamera;

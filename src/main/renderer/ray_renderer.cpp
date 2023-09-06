@@ -2,7 +2,8 @@
 #include "rendering_target.h"
 
 amts::RayRenderer::RayRenderer::RayRenderer() 
-    : m_accumulatedSamples(1),
+    : m_done(false), 
+    m_accumulatedSamples(1),
     m_properties(RayRendererProfile::create_default_renderer_profile()),
     m_activeScene(nullptr),
     m_activeCamera(nullptr),
@@ -17,6 +18,15 @@ amts::RayRenderer::RayRenderer::RayRenderer()
 
     for(u64 i = 0; i < 600; ++i) 
         m_targetHeightIterator[i] = i;
+        
+    m_targetTiledWidthIterator.resize(5);
+    m_targetTiledHeightIterator.resize(5);
+
+    for(u64 i = 0; i < 5; ++i) 
+        m_targetTiledWidthIterator[i] = i;
+
+    for(u64 i = 0; i < 5; ++i) 
+        m_targetTiledHeightIterator[i] = i;
 }
 
 amts::RayRenderer::RayRenderer::~RayRenderer() {
@@ -62,7 +72,7 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         rayDirection.y += (Utils::random_float() - 0.5f) * m_properties.m_antiAliasingFactor;
     }
 
-    Vec4f rotated = m_activeCamera->get_rotation_matrix() * Vec4f(rayDirection.x, rayDirection.y, rayDirection.z, 1.0);
+    Vec4f rotated = m_activeCamera->get_rotation_matrix() * Vec4f(rayDirection.x, rayDirection.y, rayDirection.z, 1.0f);
     rayDirection = Vec3f(rotated.x, rotated.y, rotated.z);
 
     Ray ray{m_activeCamera->get_position(), rayDirection};
@@ -118,6 +128,9 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
 }
 
 void amts::RayRenderer::render(RenderingTarget* target) {
+    if(m_done) // if we done rendering then lets stop
+        return;
+
     assert(target->is_locked() || std::cout << "Target should be locked before trying to render" << std::endl);
 
     assert((m_activeScene == nullptr) || std::cout << "Active scene is not specified before rendering" << std::endl);
@@ -130,29 +143,83 @@ void amts::RayRenderer::render(RenderingTarget* target) {
 
     TextureBuffer<Color>& accumulatedColor = target->get_accumulated_color();
 
-    std::for_each(std::execution::par, m_targetWidthIterator.begin(), m_targetWidthIterator.end(), [&](const u64& x) {
-        std::for_each(std::execution::par, m_targetHeightIterator.begin(), m_targetHeightIterator.end(), [&](const u64& y) {
-            const Color color = per_pixel(x, y, targetWidth, targetHeight).clamp(0.0f, 1.0f);
+    if(m_properties.m_presentMode == IMMEDIATE_ACCUMULATION) {
+        if(m_properties.m_multiThreading) {
+            std::for_each(std::execution::par, m_targetWidthIterator.begin(), m_targetWidthIterator.end(), [&](const u64& x) {
+                std::for_each(std::execution::par, m_targetHeightIterator.begin(), m_targetHeightIterator.end(), [&](const u64& y) {
+                    const Color color = per_pixel(x, y, targetWidth, targetHeight).clamp(0.0f, 1.0f);
 
-            Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
-            accumulatedPixel += color;
+                    Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
+                    accumulatedPixel += color;
 
-            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
-        });
-    });
+                    target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                });
+            });
+        } else {
+            for(u64 x = 0; x < targetWidth; ++x) {
+                for(u64 y = 0; y < targetHeight; ++y) {
+                    const Color color = per_pixel(x, y, targetWidth, targetHeight).clamp(0.0f, 1.0f);
 
-    /*
-    for(u64 x = 0; x < targetWidth; ++x) {
-        for(u64 y = 0; y < targetHeight; ++y) {
-            const Color color = per_pixel(x, y, targetWidth, targetHeight, *scene, *camera, *materialCollection).clamp(0.0f, 1.0f);
+                    Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
+                    accumulatedPixel += color;
 
-            Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
-            accumulatedPixel += color;
+                    target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                }
+            }
+        }
+    } else if(m_properties.m_presentMode == TILED_ACCUMULATION) {
+        const u64 tileWidth = targetWidth / m_properties.m_tilesInRow;
+        const u64 tileHeight = targetHeight / m_properties.m_tilesInCollum;
+        
+        if(m_properties.m_multiThreading) {
+            std::for_each(std::execution::par, m_targetTiledWidthIterator.begin(), m_targetTiledWidthIterator.end(), [&](const u64& x) {
+                std::for_each(std::execution::par, m_targetTiledHeightIterator.begin(), m_targetTiledHeightIterator.end(), [&](const u64& y) {
+                    if(m_properties.m_immediateAccumulation) {
+                        for(u64 xt = x * tileWidth; xt < (x + 1) * tileWidth; ++xt) {
+                            for(u64 yt = y * tileHeight; yt < (y + 1) * tileHeight; ++yt) {
+                                const Color color = per_pixel(xt, yt, targetWidth, targetHeight).clamp(0.0f, 1.0f);
 
-            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                                Color& accumulatedPixel = accumulatedColor.get_pixel_at(xt, yt);
+                                accumulatedPixel += color;
+
+                                target->get_pixel_at(xt, yt) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                            }
+                        }
+                    } else {
+                        for(u64 i = 0; i < m_properties.m_samplesPerPixel; ++i) {
+                            for(u64 xt = x * tileWidth; xt < (x + 1) * tileWidth; ++xt) {
+                                for(u64 yt = y * tileHeight; yt < (y + 1) * tileHeight; ++yt) {
+                                    const Color color = per_pixel(xt, yt, targetWidth, targetHeight).clamp(0.0f, 1.0f);
+
+                                    Color& accumulatedPixel = accumulatedColor.get_pixel_at(xt, yt);
+                                    accumulatedPixel += color;
+
+                                    target->get_pixel_at(xt, yt) = (accumulatedPixel / static_cast<f32>(m_properties.m_samplesPerPixel)).to_u32();
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            m_done = !m_properties.m_immediateAccumulation;
+        } else {
+            for(u64 x = 0; x < m_properties.m_tilesInRow; ++x) {
+                for(u64 y = 0; y < m_properties.m_tilesInCollum; ++y) {
+                    for(u64 xt = x * tileWidth; xt < (x + 1) * tileWidth; ++xt) {
+                        for(u64 yt = y * tileHeight; yt < (y + 1) * tileHeight; ++yt) {
+                            const Color color = per_pixel(xt, yt, targetWidth, targetHeight).clamp(0.0f, 1.0f);
+
+                            Color& accumulatedPixel = accumulatedColor.get_pixel_at(xt, yt);
+                            accumulatedPixel += color;
+
+                            target->get_pixel_at(xt, yt) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                        }
+                    }
+                }
+            }
         }
     }
-    */
 
     ++m_accumulatedSamples;
 }

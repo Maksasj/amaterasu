@@ -32,31 +32,31 @@ namespace amts {
             f32 m = w.dot(w);
 
             Vec4f trap = Vec4f(abs(w.x), abs(w.y), abs(w.z), m);
-            f32 dz = 1.0;
+            f32 dz = 1.0f;
 
             for(u64 i = 0; i < iterations; ++i) {
                 // trigonometric version
 
                 // dz = 8*z^7*dz
-                dz = 8.0 * pow(m, 3.5) * dz + 1.0;
+                dz = 8.0f * pow(m, 3.5) * dz + 1.0f;
                 // dz = 8.0*pow(sqrt(m),7.0)*dz + 1.0;
 
                 // z = z^8+z
                 f32 r = w.length();
                 f32 b = power * acos(w.y / r);
                 f32 a = power * atan2f(w.x, w.z);
-                w = (point - m_position) + Vec3f(sin(b) * sin(a), cos(b), sin(b) * cos(a)) * pow(r, 8.0);
+                w = (point - m_position) + Vec3f(sin(b) * sin(a), cos(b), sin(b) * cos(a)) * pow(r, 8.0f);
 
                 trap = min_f(trap, Vec4f(abs(w.x), abs(w.y), abs(w.z), m));
 
                 m = w.dot(w);
-                if (m > 256.0) break;
+                if (m > 256.0f) break;
             }
 
             // res_color = vec4(m, trap.yzw);
 
             // distance estimation (through the Hubbard-Douady potential)
-            return 0.25 * log(m) * sqrt(m) / dz;
+            return 0.25f * log(m) * sqrt(m) / dz;
         }
 
         RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {

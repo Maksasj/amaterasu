@@ -14,6 +14,8 @@ namespace amts {
         } 
 
         RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {
+            std::ignore = profile;
+
             const auto oc = ray.m_origin - m_position;
 
             const f32 a = ray.m_direction.dot(ray.m_direction);

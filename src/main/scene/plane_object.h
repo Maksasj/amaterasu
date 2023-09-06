@@ -14,6 +14,8 @@ namespace amts {
         }
 
         RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {
+            std::ignore = profile;
+
             f32 denom = m_position.dot(m_normal);
 
             if(abs(denom) <= 1e-4f)
