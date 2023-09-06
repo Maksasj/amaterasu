@@ -3,18 +3,21 @@
 
 #include <functional>
 #include "common/common_ui_window.h"
+#include "themes/themes.h"
 
 namespace amts {
     class MainDockspaceUIWindow : public CommonUIWindow {
         private:
+            std::unique_ptr<Theme> m_activeTheme; // Todo, move this somewhere
 
         public:
             MainDockspaceUIWindow() : CommonUIWindow("Main Dockspace") {
-
+                m_activeTheme = std::make_unique<DeepDarkTheme>();
+                m_activeTheme->apply_theme();
             }
 
             ~MainDockspaceUIWindow() override {
-                
+                m_activeTheme = nullptr;
             }
 
             void run(const std::function<void(void)>& dockSpaceBody) {
