@@ -19,6 +19,9 @@ namespace amts {
             f32 m_objectSphereRadius;
             Vec3f m_objectPlaneNormal;
 
+            u64 m_fractalIterations;
+            f32 m_fractalPower;
+
         public:
             ObjectCreateUIWindow() 
                 : CommonUIWindow("Create Object", false),
@@ -33,6 +36,9 @@ namespace amts {
 
                 m_objectSphereRadius = 1.0f;
                 m_objectPlaneNormal = Vec3f(0.0f, -1.0f, 0.0f);
+
+                m_fractalIterations = 12;
+                m_fractalPower = 8.0f;
             }
 
             ~ObjectCreateUIWindow() override {
@@ -104,6 +110,25 @@ namespace amts {
 
                         if(ImGui::Button("Create Object"))
                             m_creatingObjectQueue.emplace_back(std::make_unique<PlaneObject>(m_objectName, m_objectPosition, m_objectMaterialId, m_objectPlaneNormal));
+                        break;
+                    };
+                    case ObjectType::MARCHING_SPHERE: {
+                        ImGui::Text("Sphere Radius");
+                        ImGui::DragFloat("## Sphere Radius", &m_objectSphereRadius, 0.005f, 0.0f, std::numeric_limits<f32>::max());
+
+                        if(ImGui::Button("Create Object"))
+                            m_creatingObjectQueue.emplace_back(std::make_unique<MarchingSphereObject>(m_objectName, m_objectPosition, m_objectMaterialId, m_objectSphereRadius));
+                        break;
+                    };
+                    case ObjectType::MARCHING_MANDELBULB: {
+                        ImGui::Text("Power");
+                        ImGui::DragFloat("## Power", &m_fractalPower, 0.005f, 0.0f, std::numeric_limits<f32>::max());
+
+                        ImGui::Text("Iterations");
+                        ImGui::InputScalar("## Iterations", ImGuiDataType_U64, &m_fractalIterations);
+
+                        if(ImGui::Button("Create Object"))
+                            m_creatingObjectQueue.emplace_back(std::make_unique<MarchingMandelbulb>(m_objectName, m_objectPosition, m_objectMaterialId, m_fractalIterations, m_fractalPower));
                         break;
                     };
                     default: throw std::runtime_error("Object type is not implemented");

@@ -7,11 +7,13 @@
 
 namespace amts {
     struct MarchingMandelbulb : public Object {
-        f32 m_radius;
+        u64 m_iterations;
+        f32 m_power;
 
-        MarchingMandelbulb(const std::string& name, const Vec3f position, const u64& materialId, const f32 radius) 
+        MarchingMandelbulb(const std::string& name, const Vec3f position, const u64& materialId, const u64& iterations, const f32& power) 
             : Object(MARCHING_SPHERE, name, position, materialId), 
-              m_radius(radius) {
+              m_iterations(iterations),
+              m_power(power) {
 
         } 
 
@@ -25,16 +27,13 @@ namespace amts {
         }
  
         f32 get_distance(const Vec3f& point) const {
-            const static u64 iterations = 12;
-            const static f32 power = 8.0f;
-
             Vec3f w = (point - m_position);
             f32 m = w.dot(w);
 
             Vec4f trap = Vec4f(abs(w.x), abs(w.y), abs(w.z), m);
             f32 dz = 1.0f;
 
-            for(u64 i = 0; i < iterations; ++i) {
+            for(u64 i = 0; i < m_iterations; ++i) {
                 // trigonometric version
 
                 // dz = 8*z^7*dz
@@ -43,8 +42,8 @@ namespace amts {
 
                 // z = z^8+z
                 f32 r = w.length();
-                f32 b = power * acos(w.y / r);
-                f32 a = power * atan2f(w.x, w.z);
+                f32 b = m_power * acos(w.y / r);
+                f32 a = m_power * atan2f(w.x, w.z);
                 w = (point - m_position) + Vec3f(sin(b) * sin(a), cos(b), sin(b) * cos(a)) * pow(r, 8.0f);
 
                 trap = min_f(trap, Vec4f(abs(w.x), abs(w.y), abs(w.z), m));
