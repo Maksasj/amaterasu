@@ -17,6 +17,7 @@
 #include "ui/main_dockspace.h"
 #include "ui/result_view_ui_window.h"
 #include "ui/metrics_ui_window.h"
+#include "ui/ray_renderer_profile_editor.h"
 
 namespace amts {
     class UIProxy : public CommonProxy {
@@ -37,6 +38,7 @@ namespace amts {
             std::unique_ptr<SceneViewUIWindow> m_sceneViewUIWindow;
             std::unique_ptr<MaterialsUIWindow> m_materialsUIWindow;
             std::unique_ptr<ResultViewUIWindow> m_resultViewUIWindow;
+            std::unique_ptr<RenderingProfileEditorUIWindow> m_rayRenderingProfileEditorUIWindow;
             std::unique_ptr<MetricsUIWindow> m_metricsUIWindow;
 
         public:

@@ -55,6 +55,11 @@ namespace amts {
                 return static_cast<pixelDataType*>(m_pixelData)[x + y * m_width];
             }
 
+            void fill_pixel_data(const pixelDataType& value) {
+                for(u64 i = 0; i < get_area(); ++i) 
+                    get_pixel_at(i) = value;
+            }
+
             static std::unique_ptr<TextureBuffer<u32>> load_pixel_data_from_png_file(const std::string& fileName)  {
                 i32 width, height, n;
                 u8 *pixelData = stbi_load(fileName.c_str(), &width, &height, &n, 0);

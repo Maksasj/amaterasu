@@ -10,6 +10,8 @@
 
 namespace amts {
     struct RayRendererProfile {
+        std::string m_name;
+
         // Rendering
         HIGH_IMPACT u64 m_maxBounces; // Done
         NO_IMPACT   f32 m_reflectionNormalOffset; // Done
@@ -28,15 +30,17 @@ namespace amts {
         LOW_IMPACT  f32 m_antiAliasingFactor; // Done
 
         // Present
-        NO_IMPACT   RayRendererPresentMode m_presentMode; // u64 should be changet to enum
-        HIGH_IMPACT bool m_multiThreading;
-        HIGH_IMPACT bool m_immediateAccumulation;
-        NO_IMPACT   u64 m_samplesPerPixel;
-        NO_IMPACT   u64 m_tilesInRow;
-        NO_IMPACT   u64 m_tilesInCollum;
+        NO_IMPACT   RayRendererPresentMode m_presentMode;; // Done
+        HIGH_IMPACT bool m_multiThreading;; // Done
+        HIGH_IMPACT bool m_immediateAccumulation;; // Done
+        NO_IMPACT   u64 m_samplesPerPixel;; // Done
+        NO_IMPACT   u64 m_tilesInRow;; // Done
+        NO_IMPACT   u64 m_tilesInCollum;; // Done
 
         static RayRendererProfile create_default_renderer_profile() {
             RayRendererProfile profile;
+
+            profile.m_name = "Default rendering profile";
 
             // Rendering
             profile.m_maxBounces = 10;

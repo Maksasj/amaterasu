@@ -27,6 +27,7 @@ namespace amts {
             u64 m_accumulatedSamples;
 
             RayRendererProfile m_properties;
+            bool m_profileChanget;
 
             std::vector<u64> m_targetWidthIterator;
             std::vector<u64> m_targetHeightIterator;
@@ -52,6 +53,11 @@ namespace amts {
             void set_active_camera(std::unique_ptr<Camera>& camera);
             void set_active_material_collection(std::unique_ptr<MaterialCollection>& materialCollection);
             void set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture);
+
+            const bool& is_profile_changet() const;
+            void apply_profile(const RayRendererProfile& profile);
+            void reset_changet_profile_flag();
+            const RayRendererProfile& get_profile() const;
 
             void reset_accumulation();
     };

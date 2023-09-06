@@ -15,6 +15,7 @@ amts::UIProxy::UIProxy()
     m_sceneViewUIWindow = nullptr;
     m_materialsUIWindow = nullptr;
     m_resultViewUIWindow = nullptr;
+    m_rayRenderingProfileEditorUIWindow = nullptr;
     m_metricsUIWindow = nullptr;
 }
 
@@ -53,6 +54,7 @@ void amts::UIProxy::init() {
     m_sceneViewUIWindow = std::make_unique<SceneViewUIWindow>();
     m_materialsUIWindow = std::make_unique<MaterialsUIWindow>();
     m_resultViewUIWindow = std::make_unique<ResultViewUIWindow>();
+    m_rayRenderingProfileEditorUIWindow = std::make_unique<RenderingProfileEditorUIWindow>();
     m_metricsUIWindow = std::make_unique<MetricsUIWindow>();
 }
 
@@ -76,9 +78,14 @@ void amts::UIProxy::run() {
             if(!stopRenderingThread) {
                 m_scene->mark_as_rendering();
 
-                if(m_scene->is_modified()) {
+                if(m_scene->is_modified() || m_rayRenderer->is_profile_changet()) {
                     m_target->reset_accumulation();
+                    
+                    if(!m_rayRenderer->get_profile().m_immediateAccumulation)
+                        m_target->fill_pixel_data(0xFF000000);
+
                     m_rayRenderer->reset_accumulation();
+                    m_rayRenderer->reset_changet_profile_flag();
 
                     m_cameraController->reset_move_flag();
                     m_scene->reset_modified_flag();
@@ -87,7 +94,6 @@ void amts::UIProxy::run() {
                 m_target->lock();
                     m_rayRenderer->render(m_target.get());
                 m_target->unlock();
-                
             }
             
             m_scene->reset_rendering_flag();
@@ -134,6 +140,7 @@ void amts::UIProxy::run() {
                 m_resultViewUIWindow->run(m_viewTexture);
                 m_sceneViewUIWindow->run(m_scene, m_materialCollection);
                 m_materialsUIWindow->run(m_materialCollection, m_scene);
+                m_rayRenderingProfileEditorUIWindow->run(m_scene, m_rayRenderer);
                 m_metricsUIWindow->run();
             });
         m_renderer->end();
@@ -170,6 +177,7 @@ void amts::UIProxy::cleanup() {
     m_sceneViewUIWindow = nullptr;
     m_materialsUIWindow = nullptr;
     m_resultViewUIWindow = nullptr;
+    m_rayRenderingProfileEditorUIWindow = nullptr;
     m_metricsUIWindow = nullptr;
 
     SDL_Quit();

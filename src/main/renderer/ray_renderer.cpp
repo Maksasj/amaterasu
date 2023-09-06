@@ -5,6 +5,7 @@ amts::RayRenderer::RayRenderer::RayRenderer()
     : m_done(false), 
     m_accumulatedSamples(1),
     m_properties(RayRendererProfile::create_default_renderer_profile()),
+    m_profileChanget(false),
     m_activeScene(nullptr),
     m_activeCamera(nullptr),
     m_activeMaterialCollection(nullptr),
@@ -224,6 +225,26 @@ void amts::RayRenderer::render(RenderingTarget* target) {
     ++m_accumulatedSamples;
 }
 
+void amts::RayRenderer::apply_profile(const RayRendererProfile& profile) {
+    m_properties = profile;
+    m_done = false;
+    m_accumulatedSamples = 1;
+
+    m_profileChanget = true;
+}
+
+const bool& amts::RayRenderer::is_profile_changet() const {
+    return m_profileChanget;
+}
+
+void amts::RayRenderer::reset_changet_profile_flag() {
+   m_profileChanget = false;
+}
+
+const amts::RayRendererProfile& amts::RayRenderer::get_profile() const {
+    return m_properties;
+}
+
 void amts::RayRenderer::set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture) {
     m_activeSkyTexture = skyTexture.get();
 }
@@ -243,4 +264,3 @@ void amts::RayRenderer::set_active_camera(std::unique_ptr<Camera>& camera) {
 void amts::RayRenderer::reset_accumulation() {
     m_accumulatedSamples = 1;
 }
-
