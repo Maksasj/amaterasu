@@ -3,6 +3,7 @@
 
 amts::RayRenderer::RayRenderer::RayRenderer() 
     : m_frame(1),
+    m_properties(RayRendererProfile::create_default_renderer_profile()),
     m_skyTexture(nullptr) {
 
     m_targetWidthIterator.resize(800);

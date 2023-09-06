@@ -16,7 +16,7 @@
 #include "utils.h"
 #include "materials/material_collection.h"
 #include "rendering_target.h"
-#include "ray_renderer_properties.h"
+#include "ray_renderer_profile.h"
 
 namespace amts {
     class RenderingTarget;
@@ -25,7 +25,7 @@ namespace amts {
         private:
             u64 m_frame;
 
-            RayRendererProperties m_properties;
+            RayRendererProfile m_properties;
 
             std::vector<u64> m_targetWidthIterator;
             std::vector<u64> m_targetHeightIterator;

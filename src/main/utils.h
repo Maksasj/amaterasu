@@ -20,16 +20,6 @@ namespace amts {
 
             return Vec3f(x, y, z).normalize();
         }
-
-        // Todo, move this function to omni::types
-        template<typename T>
-        static int sgn(T val) {
-            return (T(0) < val) - (val < T(0));
-        }
-
-        static f32 atan_f(const f32& x, const f32& y) {
-            return -sgn(x*y)*atan((abs(x)-abs(y))/(abs(x)+abs(y)));
-        }
     };
 }
 
