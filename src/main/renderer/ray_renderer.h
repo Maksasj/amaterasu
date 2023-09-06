@@ -23,7 +23,7 @@ namespace amts {
 
     class RayRenderer {
         private:
-            u64 m_frame;
+            u64 m_accumulatedSamples;
 
             RayRendererProfile m_properties;
 

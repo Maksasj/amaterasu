@@ -13,7 +13,7 @@ namespace amts {
 
         } 
 
-        RayResult hit(const Ray& ray) override {
+        RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {
             const auto oc = ray.m_origin - m_position;
 
             const f32 a = ray.m_direction.dot(ray.m_direction);
@@ -33,12 +33,10 @@ namespace amts {
                     if(d0 < 0) return RayResult::invalid;
                 }
 
-                const f32 d = d0;
-
-                const Vec3f collisionPoint = ray.m_origin + ray.m_direction*(d * 0.99f);
+                const Vec3f collisionPoint = ray.m_origin + ray.m_direction*d0; // At this point d0 should be minimal
                 const Vec3f normal = (collisionPoint - m_position).normalize();
 
-                return RayResult{d, collisionPoint, normal, 0};
+                return RayResult{d0, collisionPoint, normal, 0}; // At this point d0 should be minimal
             }
 
             return RayResult::invalid;

@@ -59,25 +59,19 @@ namespace amts {
             return 0.25 * log(m) * sqrt(m) / dz;
         }
 
-        RayResult hit(const Ray& ray) override {
+        RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {
             f32 d = 0.0f;
 
-            const static u64 maxSteps = 1000;
-            const static u64 maxDist = 10;
-            const static f32 epsilon = 0.000001f;
-
-            for(u64 i = 0; i < maxSteps; ++i) {
+            for(u64 i = 0; i < profile.m_rayMarchingMaxSteps; ++i) {
                 Vec3f p = ray.m_origin + ray.m_direction.normalize() * d;
                 f32 ds = get_distance(p);
                 d += ds;
 
-                if(d > maxDist) {
+                if(d > profile.m_rayMarchingMaxDist)
                     return RayResult::invalid;
-                }
 
-                if(ds < epsilon) {
+                if(ds < profile.m_rayMarchingEpsilon)
                     return RayResult{d, p, (p - m_position).normalize(), 0};
-                }
             }
 
             return RayResult::invalid;

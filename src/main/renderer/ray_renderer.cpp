@@ -2,7 +2,7 @@
 #include "rendering_target.h"
 
 amts::RayRenderer::RayRenderer::RayRenderer() 
-    : m_frame(1),
+    : m_accumulatedSamples(1),
     m_properties(RayRendererProfile::create_default_renderer_profile()),
     m_activeScene(nullptr),
     m_activeCamera(nullptr),
@@ -29,7 +29,7 @@ amts::RayResult amts::RayRenderer::trace_ray(const Ray& ray) const {
     bool validCollision = false;
 
     for(u64 i = 0; i < m_activeScene->m_objects.size(); ++i) {
-        const RayResult result = m_activeScene->m_objects[i]->hit(ray);
+        const RayResult result = m_activeScene->m_objects[i]->hit(m_properties, ray);
 
         if(!result.is_valid())
             continue;
@@ -70,28 +70,27 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
     Vec3f light = Vec3f::splat(0.0f);
     Vec3f contribution = Vec3f::splat(1.0f);
 
-    const u64 maxBounces = 10;
-    for(u64 b = 0; b < maxBounces; ++b) {
+    for(u64 b = 0; b < m_properties.m_maxBounces; ++b) {
         const auto result = trace_ray(ray);
 
         if(result.hitDistance < 0.0f) {
-            if(m_activeSkyTexture == nullptr) {
-                const Vec3f skyColor = Vec3f(1.0f, 1.0f, 1.0f);
+            if(m_properties.m_enableSkybox) {
+                const auto& d = ray.m_direction;
+                const Vec2f uv = Vec2f(atan2(d.z, d.x) / (2.0f * OMNI_TYPES_PI), asinf(d.y) / OMNI_TYPES_PI) + 0.5f;
+
+                const u64 x = static_cast<u64>(uv.x * static_cast<f32>(m_activeSkyTexture->get_width() - 1));
+                const u64 y = static_cast<u64>(uv.y * static_cast<f32>(m_activeSkyTexture->get_height() - 1));
+
+                const u32& pixel = m_activeSkyTexture->get_pixel_at(x, y);
+                const Vec3f skyColor = Color::from_vec4f(pixel).to_vec3f(); // Todo, cringe conversions
+
                 light += skyColor * contribution;
+
                 break;
             }
 
-            const auto& d = ray.m_direction;
-            const Vec2f uv = Vec2f(atan2(d.z, d.x) / (2.0f * OMNI_TYPES_PI), asinf(d.y) / OMNI_TYPES_PI) + 0.5f;
-
-            const u64 x = static_cast<u64>(uv.x * static_cast<f32>(m_activeSkyTexture->get_width() - 1));
-            const u64 y = static_cast<u64>(uv.y * static_cast<f32>(m_activeSkyTexture->get_height() - 1));
-
-            const u32& pixel = m_activeSkyTexture->get_pixel_at(x, y);
-            const Vec3f skyColor = Color::from_vec4f(pixel).to_vec3f(); // Todo, cringe conversions
-
+            const Vec3f skyColor = Vec3f(1.0f, 1.0f, 1.0f);
             light += skyColor * contribution;
-
             break;
         }
 
@@ -99,12 +98,20 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         const std::unique_ptr<Material>& material = m_activeMaterialCollection->m_materials[object->m_materialId];  
 
         contribution *= material->m_albedo.to_vec3f();
-        light += material->m_emissionColor.to_vec3f() * material->m_emissionStrength;
 
-        ray.m_origin = result.hitPoint + result.hitNormal * 0.0001f;
+        if(m_properties.m_enableEmission)
+            light += material->m_emissionColor.to_vec3f() * material->m_emissionStrength;
 
-        const Vec3f reflection = ray.m_direction - result.hitNormal * 2.0f * ray.m_direction.dot(result.hitNormal); 
-        ray.m_direction = (reflection + Utils::random_in_unit_sphere() * material->m_metallic).normalize();
+        if(m_properties.m_enableReflection) {
+            ray.m_origin = result.hitPoint + result.hitNormal * m_properties.m_reflectionNormalOffset;
+
+            const Vec3f reflection = ray.m_direction - result.hitNormal * 2.0f * ray.m_direction.dot(result.hitNormal); 
+            ray.m_direction = (reflection + Utils::random_in_unit_sphere() * material->m_metallic).normalize();
+            
+            continue;
+        }
+
+        break;
     }
 
     return Color(light.x, light.y, light.z);
@@ -130,7 +137,7 @@ void amts::RayRenderer::render(RenderingTarget* target) {
             Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
             accumulatedPixel += color;
 
-            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_frame)).to_u32();
+            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
         });
     });
 
@@ -142,12 +149,12 @@ void amts::RayRenderer::render(RenderingTarget* target) {
             Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
             accumulatedPixel += color;
 
-            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_frame)).to_u32();
+            target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
         }
     }
     */
 
-    ++m_frame;
+    ++m_accumulatedSamples;
 }
 
 void amts::RayRenderer::set_active_sky_texture(std::unique_ptr<TextureBuffer<u32>>& skyTexture) {
@@ -167,6 +174,6 @@ void amts::RayRenderer::set_active_camera(std::unique_ptr<Camera>& camera) {
 }
 
 void amts::RayRenderer::reset_accumulation() {
-    m_frame = 1;
+    m_accumulatedSamples = 1;
 }
 

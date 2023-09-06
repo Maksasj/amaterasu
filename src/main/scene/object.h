@@ -6,6 +6,7 @@
 #include "object_type.h"
 #include "renderer/ray.h"
 #include "renderer/ray_result.h"
+#include "renderer/ray_renderer_profile.h"
 
 namespace amts {
     struct Object {
@@ -25,7 +26,7 @@ namespace amts {
 
         virtual ~Object() {}
 
-        virtual RayResult hit(const Ray& ray) = 0;
+        virtual RayResult hit(const RayRendererProfile& profile, const Ray& ray) = 0;
         virtual std::unique_ptr<Object> clone() = 0;
     };
 }
