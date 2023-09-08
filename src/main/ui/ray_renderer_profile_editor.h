@@ -3,6 +3,7 @@
 
 #include "common/common_ui_window.h"
 #include "renderer/ray_renderer.h"
+#include "renderer/ray_renderer_present_mode.h"
 
 namespace amts {
     class RenderingProfileEditorUIWindow : public CommonUIWindow {

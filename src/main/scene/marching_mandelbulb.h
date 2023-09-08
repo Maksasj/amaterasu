@@ -11,7 +11,7 @@ namespace amts {
         f32 m_power;
 
         MarchingMandelbulb(const std::string& name, const Vec3f position, const u64& materialId, const u64& iterations, const f32& power) 
-            : Object(MARCHING_SPHERE, name, position, materialId), 
+            : Object(MARCHING_MANDELBULB, name, position, materialId), 
               m_iterations(iterations),
               m_power(power) {
 
@@ -26,7 +26,7 @@ namespace amts {
             );
         }
  
-        f32 get_distance(const Vec3f& point) const {
+        f32 get_distance(const Vec3f& point, Vec4f& resColor) const {
             Vec3f w = (point - m_position);
             f32 m = w.dot(w);
 
@@ -52,7 +52,7 @@ namespace amts {
                 if (m > 256.0f) break;
             }
 
-            // res_color = vec4(m, trap.yzw);
+            resColor = Vec4f(m, trap.y, trap.z, trap.w);
 
             // distance estimation (through the Hubbard-Douady potential)
             return 0.25f * log(m) * sqrt(m) / dz;
@@ -60,17 +60,18 @@ namespace amts {
 
         RayResult hit(const RayRendererProfile& profile, const Ray& ray) override {
             f32 d = 0.0f;
+            Vec4f resColor = Vec4f::splat(0.0f);
 
             for(u64 i = 0; i < profile.m_rayMarchingMaxSteps; ++i) {
                 Vec3f p = ray.m_origin + ray.m_direction.normalize() * d;
-                f32 ds = get_distance(p);
+                f32 ds = get_distance(p, resColor);
                 d += ds;
 
                 if(d > profile.m_rayMarchingMaxDist)
                     return RayResult::invalid;
 
                 if(ds < profile.m_rayMarchingEpsilon)
-                    return RayResult{d, p, (p - m_position).normalize(), 0};
+                    return RayResult{d, p, (p - m_position).normalize(), 0, resColor};
             }
 
             return RayResult::invalid;

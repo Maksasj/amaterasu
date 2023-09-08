@@ -108,7 +108,11 @@ amts::Color amts::RayRenderer::per_pixel(const u64& x, const u64& y, const u64& 
         const std::unique_ptr<Object>& object = m_activeScene->m_objects[result.objectId];
         const std::unique_ptr<Material>& material = m_activeMaterialCollection->m_materials[object->m_materialId];  
 
-        contribution *= material->m_albedo.to_vec3f();
+        if(object->m_type != MARCHING_MANDELBULB) {
+            contribution *= material->m_albedo.to_vec3f();
+        } else {
+            contribution *= Vec3f(result.tmp.x, result.tmp.y, result.tmp.z);
+        }
 
         if(m_properties.m_enableEmission)
             light += material->m_emissionColor.to_vec3f() * material->m_emissionStrength;

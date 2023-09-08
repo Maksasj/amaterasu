@@ -11,6 +11,8 @@ namespace amts {
 
         u64 objectId;
 
+        Vec4f tmp = Vec4f::splat(0.0f);
+
         const static RayResult invalid;
 
         bool is_valid() const {
