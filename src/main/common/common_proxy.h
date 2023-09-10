@@ -4,6 +4,7 @@
 #include "common.h"
 
 #include "renderer/ray_renderer.h"
+#include "renderer/worker_pool.h"
 #include "materials/material_collection.h"
 #include "scene/scene.h"
 #include "camera.h"
@@ -15,6 +16,7 @@ namespace amts {
             std::unique_ptr<Scene> m_scene;
             std::unique_ptr<Camera> m_mainCamera;
             std::unique_ptr<MaterialCollection> m_materialCollection;
+            std::unique_ptr<WorkerPool> m_workerPool;
 
             std::unique_ptr<TextureBuffer<u32>> m_activeSkyTexture;
 

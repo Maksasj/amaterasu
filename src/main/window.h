@@ -22,10 +22,16 @@ namespace amts {
             Window(const std::string& title, const u64& width, const u64& height) 
                 : m_close(false), m_sdlWindow(nullptr), m_title(title), m_width(width), m_height(height) {
 
-                const auto windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-                // const auto windowFlags = 0;
-                
+                const auto windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+
+                std::cout << "Trying to create SDL window\n";
+
                 m_sdlWindow = SDL_CreateWindow(title.c_str(), m_width, m_height, windowFlags);
+
+                if(m_sdlWindow == nullptr)
+                    std::cout << "Error: " << SDL_GetError() << "\n";
+
+                std::cout << "Succesfully created SDL window\n";
             }
 
             ~Window() override {

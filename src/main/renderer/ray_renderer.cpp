@@ -229,6 +229,73 @@ void amts::RayRenderer::render(RenderingTarget* target) {
     ++m_accumulatedSamples;
 }
 
+void amts::RayRenderer::render(RenderingTarget* target, std::unique_ptr<WorkerPool>& workerPool) {
+    assert(target->is_locked() || std::cout << "Target should be locked before trying to render" << std::endl);
+
+    assert((m_activeScene == nullptr) || std::cout << "Active scene is not specified before rendering" << std::endl);
+    assert((m_activeCamera == nullptr) || std::cout << "Active camera is not specified before rendering" << std::endl);
+    assert((m_activeMaterialCollection == nullptr) || std::cout << "Active material collection is not specified before rendering" << std::endl);
+    assert((m_activeSkyTexture == nullptr) || std::cout << "Active sky texture collection is not specified before rendering" << std::endl);
+
+    const u64 targetWidth = target->get_width();
+    const u64 targetHeight = target->get_height();
+
+    const u64 tileWidth = targetWidth / m_properties.m_tilesInRow;
+    const u64 tileHeight = targetHeight / m_properties.m_tilesInCollum;
+
+    TextureBuffer<Color>& accumulatedColor = target->get_accumulated_color();
+
+    std::vector<RenderWorkArea> workAreas;
+
+    for(u64 x = 0; x < m_properties.m_tilesInRow; ++x) {
+        for(u64 y = 0; y < m_properties.m_tilesInCollum; ++y) {
+            workAreas.emplace_back(RenderWorkArea{
+                Vec2<u64>(x * tileWidth, y * tileHeight), 
+                Vec2<u64>(tileWidth, tileHeight)
+            });
+        }
+    }
+
+    while(workAreas.size() > 0) {
+        Worker* worker = workerPool->get_unbusy_worker();
+
+        // If there is not available worker, lets wait
+        if(worker == nullptr)
+            continue;
+        
+        // Free previous job
+        worker->free_job();
+
+        const RenderWorkArea workArea = workAreas.back();
+        workAreas.pop_back();
+
+        Job* plannedJob = new RenderingJob(workArea, [&](RenderingJob* job) {
+            const RenderWorkArea& workArea = job->get_work_area();
+
+            for(u64 x = workArea.m_start.x; x < workArea.m_start.x + workArea.m_size.x; ++x) {
+                for(u64 y = workArea.m_start.y; y < workArea.m_start.y + workArea.m_size.y; ++y) {
+                    const Color color = per_pixel(x, y, targetWidth, targetHeight).clamp(0.0f, 1.0f);
+
+                    Color& accumulatedPixel = accumulatedColor.get_pixel_at(x, y);
+                    accumulatedPixel += color;
+
+                    target->get_pixel_at(x, y) = (accumulatedPixel / static_cast<f32>(m_accumulatedSamples)).to_u32();
+                }
+            }
+
+            job->mark_done();
+        });
+
+        worker->submit_job(plannedJob);
+    }
+
+    while(!workerPool->all_workers_done()) {
+        // We wait for all workers to complete their work
+    }
+
+    ++m_accumulatedSamples;
+}
+
 void amts::RayRenderer::apply_profile(const RayRendererProfile& profile) {
     m_properties = profile;
     m_done = false;

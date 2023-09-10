@@ -26,7 +26,11 @@ amts::UIProxy::~UIProxy() {
 void amts::UIProxy::preinit() {
     CommonProxy::preinit();
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD);
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD) != 0) {
+        printf("Error: SDL_Init(): %s\n", SDL_GetError());
+        throw std::runtime_error("Failed to initialize SDL");
+    }
+
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 }
 
@@ -39,6 +43,7 @@ void amts::UIProxy::init() {
     m_viewTexture = std::make_unique<SDLRenderingTarget>(m_renderer, 800, 600);
     m_target = std::make_unique<RenderingTarget>(800, 600);
     m_target->allocate();
+    
     
     m_eventHandler = std::make_unique<EventHandler>();
 
@@ -92,7 +97,8 @@ void amts::UIProxy::run() {
                 }
 
                 m_target->lock();
-                    m_rayRenderer->render(m_target.get());
+                    // m_rayRenderer->render(m_target.get());
+                    m_rayRenderer->render(m_target.get(), m_workerPool);
                 m_target->unlock();
             }
             

@@ -4,7 +4,19 @@
 amts::Renderer::Renderer::Renderer(const std::unique_ptr<Window>& window) 
     : m_sdlRenderer(nullptr), m_started(false) {
 
+    std::cout << "Trying to create SDL renderer\n";
+
     m_sdlRenderer = SDL_CreateRenderer(window->get_sdl_window(), NULL, SDL_RENDERER_ACCELERATED);
+    // m_sdlRenderer = SDL_CreateRenderer(window->get_sdl_window(), NULL, SDL_RENDERER_SOFTWARE);
+
+    if(m_sdlRenderer == nullptr)
+        std::cout << "Error: " << SDL_GetError() << "\n";
+
+    std::cout << "Succesfully created SDL renderer\n";
+
+    SDL_SetWindowPosition(window->get_sdl_window(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(window->get_sdl_window());
+
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

@@ -28,9 +28,12 @@ void amts::CommonProxy::init() {
     m_scene = std::make_unique<Scene>();
     m_mainCamera = std::make_unique<Camera>();
     m_materialCollection = std::make_unique<MaterialCollection>();
+
+    m_workerPool = std::make_unique<WorkerPool>();
 }
 
 void amts::CommonProxy::load() {
+    std::cout << "load started\n";
     // Materials
     m_materialCollection->m_materials.emplace_back(std::make_unique<Material>(
         "Red metallic",
@@ -103,6 +106,7 @@ void amts::CommonProxy::load() {
     ));
 
     m_activeSkyTexture = TextureBuffer<u32>::load_pixel_data_from_png_file("assets/images/fluela_wisshorn_spherical_panorama.png");
+    std::cout << "load\n";
 }
 
 void amts::CommonProxy::run() {

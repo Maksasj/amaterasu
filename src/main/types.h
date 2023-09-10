@@ -19,6 +19,9 @@ namespace amts {
     using f32 = omni::types::f32;
     using f64 = omni::types::f64;
 
+    template<class _T>
+    using Vec2 = omni::types::Vec2<_T>;
+
     using Vec2f = omni::types::Vec2f;
     using Vec3f = omni::types::Vec3f;
     using Vec4f = omni::types::Vec4f;

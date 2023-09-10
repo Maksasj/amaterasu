@@ -17,6 +17,8 @@
 #include "materials/material_collection.h"
 #include "rendering_target.h"
 #include "ray_renderer_profile.h"
+#include "worker_pool.h"
+#include "rendering_job.h"
 
 namespace amts {
     class RenderingTarget;
@@ -48,6 +50,7 @@ namespace amts {
             Color per_pixel(const u64& x, const u64& y, const u64& width, const u64& height) const;
 
             void render(RenderingTarget* target);
+            void render(RenderingTarget* target, std::unique_ptr<WorkerPool>& workerPool);
 
             void set_active_scene(std::unique_ptr<Scene>& scene);
             void set_active_camera(std::unique_ptr<Camera>& camera);

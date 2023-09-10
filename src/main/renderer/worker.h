@@ -3,24 +3,12 @@
 
 #include <thread>
 #include <functional>
+#include <mutex>
+#include <condition_variable>
+
+#include "job.h"
 
 namespace amts {
-    class Job {
-        private:
-            bool m_done;
-
-        public:
-            Job() : m_done(false) {
-
-            }
-
-            virtual void do_job() = 0;
-
-            const bool& is_done() const {
-                return m_done;
-            }
-    };
-
     class Worker {
         private:
             bool m_enabled;
@@ -30,36 +18,28 @@ namespace amts {
             Job* m_job;
 
         public:
-            Worker() 
-                : m_enabled(true),
-                  m_done(false), 
-                  m_workThread(working, this), 
-                  m_job(nullptr) {
 
-            }
+            std::condition_variable cv;
+            std::mutex mutex;
 
-            void working(Worker* worker) {
-                while((m_job != nullptr) && !m_job->is_done()) {
-                    m_job->do_job();
+            Worker();
+            ~Worker();
 
-                    if(m_job->is_done())
-                        m_done = true;
-                }
-            }
+            void working();
 
-            void submit_job(Job* job) {
-                m_done = false;
-                m_job = job;
-            }
+            void mark_as_done();
 
-            void disable() {
-                m_enabled = false;
-                m_workThread.join();
-            }
+            Job* get_job();
 
-            const bool& is_done() const {
-                return m_done;
-            }
+            void free_job();
+
+            void submit_job(Job* job);
+
+            void disable();
+
+            const bool& is_done() const;
+
+            const bool& is_enabled() const;
     };
 }
 

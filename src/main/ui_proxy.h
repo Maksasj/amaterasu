@@ -30,6 +30,7 @@ namespace amts {
 
             std::unique_ptr<EventHandler> m_eventHandler;
 
+
             // Todo I think camera controller should be stored somewhere else
             std::unique_ptr<CameraController> m_cameraController;
             std::unique_ptr<ImGuiEventReceiver> m_imguiEventReceiver;
